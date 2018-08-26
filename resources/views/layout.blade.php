@@ -14,18 +14,21 @@
       <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-	<!-- 新 Bootstrap 核心 CSS 文件 -->
-	<link rel="stylesheet" href="/bootstrap-4.1.1/css/bootstrap.min.css">
-	<link rel="stylesheet" href="/css/common.css">
-	<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
-	<script src="/js/jquery-1.9.1.min.js"></script>
-	<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
-	<script src="/bootstrap-4.1.1/js/bootstrap.min.js"></script>
-	<script src="/js/nprogress.js"></script>
 
-      <script src="/js/jedate/jquery.jedate.js"></script>
-      <script src="/js/jedate/timer.js"></script>
-	<link rel="stylesheet" href="/css/nprogress.css">
+	<style>
+	table caption{display:none;}
+    .box-shadow { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); }
+	</style>
+	<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+	<script src="https://cdn.staticfile.org/jquery/1.12.4/jquery.min.js"></script>
+	<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+	<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.3/js/bootstrap.min.js"></script>
+		<!-- 新 Bootstrap 核心 CSS 文件 -->
+	<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.3/css/bootstrap.min.css">
+	
+	<script src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css">
+
   </head>
 
 <body>

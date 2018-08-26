@@ -23,20 +23,31 @@ class MakerServiceProvider extends ServiceProvider
     public function boot()
     {
 
-
         $viewPath = realpath(__DIR__ . '/../resources/views');
         $this->loadViewsFrom($viewPath, 'maker');
-        $this->publishes([
-            realpath(__DIR__ . '/../resources/views') => base_path('resources/views/'),
-        ], 'view');
 
+        $views = resource_path('views');
+        $files = ['header', 'index', 'layout', 'pagination'];
+        
+        foreach ($files as $file)
+        {
+            if(!file_exists($views . DIRECTORY_SEPARATOR . $file . '.blade.php'))
+            {
+                copy($viewPath .DIRECTORY_SEPARATOR . $file . '.blade.php', $views . DIRECTORY_SEPARATOR . $file . '.blade.php');
+            }
+        }
+        
+        $viewPath = realpath(__DIR__ . '/../resources/views');
+        $this->loadViewsFrom($viewPath, 'maker');
+        
 
-        $this->publishes([
-            realpath(__DIR__ . '/../resources/public') => public_path() ,
-        ], 'assets');
+        $config['namespace'] = __NAMESPACE__;
+        //定义路由
+        app()->group($config, function ($router) {
+            $router->get('maker', 'MakerController@index');
+            $router->post('maker', 'MakerController@index');
+        });
 
-
-        $router->any('maker', 'MakerController@index');
         
     }
 

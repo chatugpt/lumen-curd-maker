@@ -6,8 +6,9 @@ use Illuminate\Support\Facades\DB;
 use ReflectionClass;
 use Illuminate\Http\Request;
 use function GuzzleHttp\json_decode;
+use Laravel\Lumen\Routing\Controller;
 
-class MakeController extends Controller
+class MakerController extends Controller
 {
     
     public function index(Request $request, $table = '')
@@ -90,7 +91,7 @@ class MakeController extends Controller
             if(!empty($controller))
             {
                 
-                $content = view('make.apicontroller', $tableData)->render();
+                $content = view('maker::make.apicontroller', $tableData)->render();
                 $file = app()->basePath('app'.DIRECTORY_SEPARATOR .'Http'.DIRECTORY_SEPARATOR.'Controllers'). DIRECTORY_SEPARATOR. $controllerName . 'Controller.php';
                 
                 if(!file_exists($file) || (file_exists($file) && $overwrite))
@@ -101,7 +102,7 @@ class MakeController extends Controller
             
             if(!empty($admincontroller))
             {
-                $content = view('make.controller', $tableData)->render();
+                $content = view('maker::make.controller', $tableData)->render();
                 $file = app()->basePath('app'.DIRECTORY_SEPARATOR .'Http'.DIRECTORY_SEPARATOR.'Controllers'). DIRECTORY_SEPARATOR . 'admin'. DIRECTORY_SEPARATOR. $controllerName . 'Controller.php';
                 
                 if(!file_exists($file) || (file_exists($file) && $overwrite))
@@ -120,7 +121,7 @@ class MakeController extends Controller
                     
                 }
                 $tableData['fillable'] = implode(',', $fillable);
-                $content = view('make.model', $tableData)->render();
+                $content = view('maker::make.model', $tableData)->render();
                 $file = app()->basePath('app'.DIRECTORY_SEPARATOR .'Models'). DIRECTORY_SEPARATOR. $controllerName . '.php';
                 
                 if(!file_exists($file) || (file_exists($file) && $overwrite))
@@ -134,7 +135,7 @@ class MakeController extends Controller
                 $views = ['index', 'show', 'edit'];
                 foreach ($views AS $one)
                 {
-                    $content = view('make.' . $one, $tableData)->render();
+                    $content = view('maker::make.' . $one, $tableData)->render();
                     $viewDir = app()->basePath('resources'.DIRECTORY_SEPARATOR .'views') . DIRECTORY_SEPARATOR . str_replace('_', '', $table);
                     if(!is_dir($viewDir))
                     {
@@ -154,7 +155,7 @@ class MakeController extends Controller
             {
                 $columns = $this->getValidationColumns($columns);
                 
-                $content = view('make.valid', ['controllerName' => $controllerName, 'columns' => $columns, 'phpTag' => '<?php' ])->render();
+                $content = view('maker::make.valid', ['controllerName' => $controllerName, 'columns' => $columns, 'phpTag' => '<?php' ])->render();
                 $file = app()->basePath('app'.DIRECTORY_SEPARATOR .'Validate'). DIRECTORY_SEPARATOR. $controllerName . '.php';
                 
                 if(!file_exists($file) || (file_exists($file) && $overwrite))
@@ -196,6 +197,16 @@ class MakeController extends Controller
         $str .= "\$app->post('$routeName/{id}', '{$controllerName}Controller@store');\r\n";
         $str .= "\$app->post('$routeName', '{$controllerName}Controller@store');\r\n";
         
+        
+        $adminPath = 'admin\\';
+        $adminNameSpace = ucfirst($adminPath);
+        $str .= "\$app->get('$adminPath$routeName', '$adminNameSpace{$controllerName}Controller@index');\r\n";
+        $str .= "\$app->get('$adminPath$routeName/create', '$adminNameSpace{$controllerName}Controller@edit');\r\n";
+        $str .= "\$app->get('$adminPath$routeName/{id}/edit', '$adminNameSpace{$controllerName}Controller@edit');\r\n";
+        $str .= "\$app->get('$adminPath$routeName/{id}', '$adminNameSpace{$controllerName}Controller@show');\r\n";
+        $str .= "\$app->post('$adminPath$routeName/{id}/delete', '$adminNameSpace{$controllerName}Controller@destroy');\r\n";
+        $str .= "\$app->post('$adminPath$routeName/{id}', '$adminNameSpace{$controllerName}Controller@store');\r\n";
+        $str .= "\$app->post('$adminPath$routeName', '$adminNameSpace{$controllerName}Controller@store');\r\n";
         return $str;
     }
     
