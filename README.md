@@ -13,9 +13,17 @@ $app->register(Le2le\Maker\MakerServiceProvider::class);
 
 会在resources/views/下新建3个文件
 
-header.blade.php
-index.blade.php
-layout.blade.php
-pagination.blade.php
+ header.blade.php
+ index.blade.php
+ layout.blade.php
+ pagination.blade.php
 
 如果已经存在，不会替换这个3个文件
+
+3，选择添加表，选好生成的文件后，点提交
+
+
+4，把生成的路由文本放到 routes/web.php中
+
+
+5，访问对应的路由
