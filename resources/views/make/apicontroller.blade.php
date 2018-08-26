@@ -24,19 +24,18 @@ class {{$controllerName}}Controller extends Controller
         
         $records = $model->orderBy($sort[0], $sort[1])->paginate(15);
         
-        return responseSuccessJson($records);
+        return response()->json(['status' => 0, 'data' => $records]);
     }
 
     public function show(Request $request, $id)
     {
         $id = intval($id);
-        if (! $id) {
-        	echo 'error id';
-            return;
+        if (!$id) {
+           return response()->json(['status' => 1, 'data' => 'id error']);
         }
         $model = new {{$controllerName}}();
         $model = $model->find($id);
-        return responseSuccessJson($model);
+        return response()->json(['status' => 0, 'data' => $model]);
     }
 
     public function store(Request $request, $id = null)
@@ -49,7 +48,8 @@ class {{$controllerName}}Controller extends Controller
                 $model->{$key} = $request->input($key);
             }
         }
-        return responseSuccessJson($model);;
+        $model->save();
+        return response()->json(['status' => 0, 'data' => $model]);
         
     }
 
@@ -58,12 +58,16 @@ class {{$controllerName}}Controller extends Controller
     {
         $id = intval($id);
         if (!$id) {
-            return;
+           return response()->json(['status' => 1, 'data' => 'id error']);
         }
         
         $model = new {{$controllerName}}();
         $find = $model->find($id);
-        $find->delete();
-        return ['status' => 1];
+        if(!empty($find))
+        {
+        	$find->delete();
+        }
+
+        return response()->json(['status' => 0, 'data' => ]);
     }
 }

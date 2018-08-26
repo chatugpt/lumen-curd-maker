@@ -232,7 +232,7 @@ function delete_item(dom)
     if (r==true && url)
     {
 		$.post(url, function(data) {
-			if(data.status == 1)
+			if(data.status == 0)
 			{
 				$(dom).parents('tr').remove();
 			}

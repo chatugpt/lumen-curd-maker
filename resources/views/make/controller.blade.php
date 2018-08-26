@@ -57,7 +57,7 @@ class {{$controllerName}}Controller extends Controller
                 $model->{$key} = $request->input($key);
             }
         }
-        return redirect('{{$routeName}}');
+        return redirect('admin/{{$routeName}}');
         
     }
 
@@ -83,6 +83,6 @@ class {{$controllerName}}Controller extends Controller
         $model = new {{$controllerName}}();
         $find = $model->find($id);
         $find->delete();
-        return ['status' => 1];
+        return ['status' => 0];
     }
 }
