@@ -1,7 +1,7 @@
 # lumen_make
 
 
-lumen 框架 自动生成增删改查 接口 和管理后台
+lumen 框架 自动生成增删改查 api接口 和管理后台
 
 
 1，在bootstrap/app.php中加入一行
