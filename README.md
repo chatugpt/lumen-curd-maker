@@ -1,5 +1,6 @@
 # lumen_make
 
+安装 ：composer require le2le/lumen-curd-maker
 
 lumen 框架 自动生成增删改查 api接口 和管理后台
 
