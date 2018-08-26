@@ -1,29 +1,23 @@
 {
-	"name" : "le2le/laravel-u-editor",
-	"description" : "UEditor for laravel5. Support i18n. UEditor is a Rich Text Web Editor From Baidu.",
+	"name" : "le2le/lumen  curd auto maker",
+	"description" : "lumen  curd auto maker",
 	"keywords" : [
 		"laravel",
-		"ueditor",
-		"laravel-u-editor",
-		"laravel5 web text editor",
-		"stevenyangecho",
-		"steven yang"
+		"lumen",
+		"curd"
 	],
 	"license" : "MIT",
 	"authors" : [{
-			"name" : "Steven Yang",
-			"email" : "yqmking@163.com"
+			"name" : "lennon",
+			"email" : "heiman8@qq.com"
 		}
 	],
 	"require" : {
-		"php" : ">=5.4.0",
-		"ext-fileinfo" : "*",
-		"illuminate/support" : "5.*",
-		"qiniu/php-sdk" : "7.*"
+		"php" : ">=5.4.0"
 	},
 	"autoload" : {
 		"psr-4" : {
-			"Stevenyangecho\\UEditor\\" : "src/"
+			"Le2le\\Maker\\" : "src/"
 		}
 	},
 	"minimum-stability" : "dev",
