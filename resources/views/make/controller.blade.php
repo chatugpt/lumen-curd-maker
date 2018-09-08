@@ -57,6 +57,7 @@ class {{$controllerName}}Controller extends Controller
                 $model->{$key} = $request->input($key);
             }
         }
+        $model->save();
         return redirect('admin/{{$routeName}}');
         
     }
