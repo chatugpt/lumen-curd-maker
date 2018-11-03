@@ -28,7 +28,7 @@
 			<label class="">{{$column->remark ? $column->remark : $column->name}}</label>
 			<select class="form-control"  name="{{$column->name}}" value="{{$doubleQ}}$data->{{$column->name}}}}" >
 				@foreach($column->json as $value => $label)
-				<option value="{{$value}}" {{$at}}if ($data->{{$column->name}} == '{{$value}}') "selected=selected" {{$at}}endif >{{$label}}</option>
+				<option value="{{$value}}" {{$at}}if ($data->{{$column->name}} == '{{$value}}') selected='selected' {{$at}}endif >{{$label}}</option>
 				@endforeach
 			</select>
     	</div>
