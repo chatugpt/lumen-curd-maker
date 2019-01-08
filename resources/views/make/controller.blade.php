@@ -58,7 +58,7 @@ class {{$controllerName}}Controller extends Controller
             }
         }
         $model->save();
-        return redirect('admin/{{$routeName}}');
+        return redirect('{{$adminPath}}/{{$routeName}}');
         
     }
 

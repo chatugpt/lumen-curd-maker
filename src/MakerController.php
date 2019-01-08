@@ -48,6 +48,10 @@ class MakerController extends Controller
         
         
         $routeName = '';
+        
+        $adminPath = config('config.adminPath') ;
+        
+        $adminPath = !empty($adminPath) ? $adminPath : 'admin';
         foreach ($getTables as $table)
         {
             
@@ -85,7 +89,8 @@ class MakerController extends Controller
                 'phpTag' => '<?php' ,
                 'primaryKey'=>$primaryKey,
                 'at' => '@',
-                'doubleQ' => '{{'
+                'doubleQ' => '{{',
+                'adminPath' => $adminPath,
             ];
             
             if(!empty($controller))
@@ -198,8 +203,18 @@ class MakerController extends Controller
         $str .= "\$app->post('$routeName', '{$controllerName}Controller@store');\r\n";
         
         
-        $adminPath = 'admin\\';
-        $adminNameSpace = ucfirst($adminPath);
+        $adminPath = config('config.adminPath');
+        
+        if(empty($adminPath))
+        {
+            $adminPath = 'admin';
+        }
+        
+        $adminPath .= '\\';
+
+        
+        $adminNameSpace = 'Admin';
+        
         $str .= "\$app->get('$adminPath$routeName', '$adminNameSpace{$controllerName}Controller@index');\r\n";
         $str .= "\$app->get('$adminPath$routeName/create', '$adminNameSpace{$controllerName}Controller@edit');\r\n";
         $str .= "\$app->get('$adminPath$routeName/{id}/edit', '$adminNameSpace{$controllerName}Controller@edit');\r\n";

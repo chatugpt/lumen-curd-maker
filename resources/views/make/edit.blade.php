@@ -7,9 +7,9 @@
 <div class="container">
 
 {{$at}}if ($data->id)
-<form action="/admin/{{$routeName}}/{{$doubleQ}}$data->id}}" method="post">
+<form action="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$data->id}}" method="post">
 {{$at}}else
-<form action="/admin/{{$routeName}}" method="post">
+<form action="/{{$adminPath}}/{{$routeName}}" method="post">
 {{$at}}endif
 
 @foreach( $columns as $column )
@@ -28,7 +28,7 @@
 			<label class="">{{$column->remark ? $column->remark : $column->name}}</label>
 			<select class="form-control"  name="{{$column->name}}" value="{{$doubleQ}}$data->{{$column->name}}}}" >
 				@foreach($column->json as $value => $label)
-				<option value="{{$value}}" {{$at}}if ($data->{{$column->name}} == '{{$value}}') selected='selected' {{$at}}endif >{{$label}}</option>
+				<option value="{{$value}}" {{$at}}if ($data->{{$column->name}} == '{{$value}}') "selected=selected" {{$at}}endif >{{$label}}</option>
 				@endforeach
 			</select>
     	</div>
@@ -48,7 +48,7 @@
         <button type="submit" class="btn btn-default">提交</button>
         {{$at}}endif
 			
-			<a style="float: right" href="/admin/{{$routeName}}" class="btn btn-default">返回</a>
+			<a style="float: right" href="/{{$adminPath}}/{{$routeName}}" class="btn btn-default">返回</a>
 		</div>
 
 </form>
