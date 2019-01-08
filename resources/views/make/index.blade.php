@@ -5,8 +5,8 @@
 {{$at}}section('body')
 
 <div class="container-fluid">
-    <a  href="/{{$adminPath}}/{{$routeName}}/create/" target="_blank" class="btn btn-default">添加</a>
-    <form class="form-inline  float-right">
+    <a  href="/{{$adminPath}}/{{$routeName}}/create/" target="_blank" class="btn btn-primary float-right">添加</a>
+    <form class="form-inline">
     	<input type="hidden" name="order_by" value="{{$doubleQ}}$orderBy}}">
       <div class="form-group">
     	<select class="form-control" name="search_field">
@@ -15,12 +15,12 @@
     @endforeach
     	</select>
       </div>
-    <div class="form-group">
+    <div class="form-group mx-sm-3">
     	<input type="text" class="form-control" name="search"  value="{{$doubleQ}}$search}}">
     </div>
     
     <div class="form-group">
-    	<button type="submit" class="btn btn-success">Submit</button>
+    	<button type="submit" class="btn btn-primary">搜索</button>
     </div>
 	</form>
 </div>

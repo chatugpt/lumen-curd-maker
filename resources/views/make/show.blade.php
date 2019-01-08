@@ -30,7 +30,7 @@
 	@endif
 
 @endforeach
-	<a  href="/admin/{{$routeName}}" class="btn btn-default">返回</a>
+	<a  href="/{{$adminPath}}/{{$routeName}}" class="btn btn-outline-secondary">返回</a>
 	</div>
 {{$at}}endsection
 ﻿

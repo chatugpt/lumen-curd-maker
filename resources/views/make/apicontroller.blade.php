@@ -68,6 +68,6 @@ class {{$controllerName}}Controller extends Controller
         	$find->delete();
         }
 
-        return response()->json(['status' => 0, 'data' => ]);
+        return response()->json(['status' => 0, 'data' => []]);
     }
 }

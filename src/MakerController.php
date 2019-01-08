@@ -72,7 +72,7 @@ class MakerController extends Controller
             
             
             $primaryKey = '';
-            foreach($columns as & $item){
+            foreach($columns as $item){
                 if( $item->prikey == 'PRI' ) {
                     $primaryKey = $item->name;
                     break;
