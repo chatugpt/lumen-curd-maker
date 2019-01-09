@@ -42,12 +42,15 @@
 @endforeach
 
 		<div class="form-group">
+			<label class="submit"></label>
+			<div>
     		<a href="/{{$adminPath}}/{{$routeName}}" class="btn btn-outline-secondary">返回</a>
             {{$at}}if ($data->id)
             <button type="submit" class="btn btn-primary float-right">修改</button>
             {{$at}}else
             <button type="submit" class="btn btn-primary float-right">提交</button>
             {{$at}}endif
+            </div>
 			
 
 		</div>
