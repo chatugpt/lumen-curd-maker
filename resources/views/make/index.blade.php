@@ -5,7 +5,7 @@
 {{$at}}section('body')
 
 <div class="container-fluid">
-    <a  href="/{{$adminPath}}/{{$routeName}}/create/" target="_blank" class="btn btn-primary float-right">添加</a>
+    <a  href="javascript:showModalByUrl('/{{$adminPath}}/{{$routeName}}/create/')" target="_blank" class="btn btn-primary float-right">添加</a>
     <form class="form-inline">
     	<input type="hidden" name="order_by" value="{{$doubleQ}}$orderBy}}">
       <div class="form-group">
@@ -60,9 +60,9 @@
         @endif
     @endforeach
 	     	<td>
-				<a class="btn btn-outline-primary btn-sm" role="buttton" target="_blank" href="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$record->{{$primaryKey}} }}">查看</a>
+				<a class="btn btn-outline-primary btn-sm" role="buttton" target="_blank" href="javascript:showModalByUrl('/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$record->{{$primaryKey}} }}')">查看</a>
 				<a class="btn btn-outline-primary btn-sm" role="buttton" data-url="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$record->{{$primaryKey}} }}/delete"  data-pk="{{$primaryKey}}" data-value="{{$doubleQ}}$record->{{$primaryKey}}}}" onclick="delete_item(this)"  style="cursor: pointer">删除</a>
-				<a class="btn btn-outline-primary btn-sm" role="buttton" target="_blank" href="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$record->{{$primaryKey}} }}/edit">编辑</a>
+				<a class="btn btn-outline-primary btn-sm" role="buttton" target="_blank" href="javascript:showModalByUrl('/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$record->{{$primaryKey}} }}/edit')">编辑</a>
 			</td>
 	     	</tr>	
     {{$at}}endforeach

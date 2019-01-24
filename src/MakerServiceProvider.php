@@ -43,10 +43,22 @@ class MakerServiceProvider extends ServiceProvider
 
         $config['namespace'] = __NAMESPACE__;
         //定义路由
-        app()->group($config, function ($router) {
-            $router->get('maker', 'MakerController@index');
-            $router->post('maker', 'MakerController@index');
-        });
+        $app = app();
+        //定义路由
+        if(property_exists($app, 'router'))
+        {
+            app()->router->group($config, function ($router) {
+                $router->get('maker', 'MakerController@index');
+                $router->post('maker', 'MakerController@index');
+            });
+        }
+        else
+        {
+            app()->group($config, function ($router) {
+                $router->get('maker', 'MakerController@index');
+                $router->post('maker', 'MakerController@index');
+            });
+        }
 
         
     }

@@ -26,7 +26,7 @@ class MakerController extends Controller
         {
             $dbName = app()->db->getDatabaseName();
             $tableName = 'Tables_in_' . $dbName;
-            $tables = DB::select('SHOW TABLES');
+            $tables = app()->db->select('SHOW TABLES');
             echo '<style>body{zoom:2;align:center;}</style>';
             echo '<form method="post" /><select multiple="multiple" name="table[]" size="'.count($tables).'" style="width:200px;">';
             foreach ($tables AS $table)
@@ -108,6 +108,13 @@ class MakerController extends Controller
             if(!empty($admincontroller))
             {
                 $content = view('maker::make.controller', $tableData)->render();
+                
+                $dir = app()->basePath('app'.DIRECTORY_SEPARATOR .'Http'.DIRECTORY_SEPARATOR.'Controllers'). DIRECTORY_SEPARATOR . 'admin'. DIRECTORY_SEPARATOR;
+                if(!is_dir($dir))
+                {
+                    mkdir($dir);
+                }
+                
                 $file = app()->basePath('app'.DIRECTORY_SEPARATOR .'Http'.DIRECTORY_SEPARATOR.'Controllers'). DIRECTORY_SEPARATOR . 'admin'. DIRECTORY_SEPARATOR. $controllerName . 'Controller.php';
                 
                 if(!file_exists($file) || (file_exists($file) && $overwrite))
@@ -127,6 +134,11 @@ class MakerController extends Controller
                 }
                 $tableData['fillable'] = implode(',', $fillable);
                 $content = view('maker::make.model', $tableData)->render();
+                $dir = app()->basePath('app'.DIRECTORY_SEPARATOR .'Models');
+                if(!is_dir($dir))
+                {
+                    mkdir($dir);
+                }
                 $file = app()->basePath('app'.DIRECTORY_SEPARATOR .'Models'). DIRECTORY_SEPARATOR. $controllerName . '.php';
                 
                 if(!file_exists($file) || (file_exists($file) && $overwrite))
@@ -159,6 +171,12 @@ class MakerController extends Controller
             if(!empty($validation))
             {
                 $columns = $this->getValidationColumns($columns);
+                
+                $dir = app()->basePath('app'.DIRECTORY_SEPARATOR .'Validate');
+                if(!is_dir($dir))
+                {
+                    mkdir($dir);
+                }
                 
                 $content = view('maker::make.valid', ['controllerName' => $controllerName, 'columns' => $columns, 'phpTag' => '<?php' ])->render();
                 $file = app()->basePath('app'.DIRECTORY_SEPARATOR .'Validate'). DIRECTORY_SEPARATOR. $controllerName . '.php';

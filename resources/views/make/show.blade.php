@@ -30,7 +30,7 @@
 	@endif
 
 @endforeach
-	<a  href="/{{$adminPath}}/{{$routeName}}"  class="btn btn-outline-primary btn-sm float-right" role="buttton">返回</a>
+	<a  href="javascript:$('.modal').modal('hide');"  class="btn btn-outline-primary btn-sm float-right" role="buttton">返回</a>
 	</div>
 {{$at}}endsection
 ﻿

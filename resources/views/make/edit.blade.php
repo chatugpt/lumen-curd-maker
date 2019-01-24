@@ -7,9 +7,9 @@
 <div class="container">
 
 {{$at}}if ($data->id)
-<form action="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$data->id}}" method="post">
+<form action="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$data->id}}" method="post" class="needs-validation" novalidate onsubmit="return formCheck(this);">
 {{$at}}else
-<form action="/{{$adminPath}}/{{$routeName}}" method="post">
+<form action="/{{$adminPath}}/{{$routeName}}" method="post" class="needs-validation" novalidate onsubmit="return formCheck(this);">
 {{$at}}endif
 
 @foreach( $columns as $column )
@@ -22,6 +22,7 @@
         <div class="form-group">
 			<label class="">{{$column->remark ? $column->remark : $column->name}}</label>
 			<input type="text" class="form-control"  name="{{$column->name}}" value="{{$doubleQ}}$data->{{$column->name}}}}" >
+			<div class="invalid-feedback">请输入</div>
     	</div>
     	@else
         <div class="form-group">
@@ -31,6 +32,7 @@
 				<option value="{{$value}}" {{$at}}if ($data->{{$column->name}} == '{{$value}}') "selected=selected" {{$at}}endif >{{$label}}</option>
 				@endforeach
 			</select>
+			<div class="invalid-feedback">请选择</div>
     	</div>
     	@endif
    	@else
@@ -44,7 +46,7 @@
 		<div class="form-group">
 			<label class="submit"></label>
 			<div>
-    		<a href="/{{$adminPath}}/{{$routeName}}" class="btn btn-outline-secondary">返回</a>
+    		<a href="javascript:$('.modal').modal('hide');" class="btn btn-outline-secondary">返回</a>
             {{$at}}if ($data->id)
             <button type="submit" class="btn btn-primary float-right">修改</button>
             {{$at}}else
