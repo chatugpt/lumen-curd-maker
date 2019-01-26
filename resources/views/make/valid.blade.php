@@ -1,6 +1,6 @@
 {!! $phpTag !!}
 
-namespace App\Http\Validate;
+namespace App\Validate;
 
 class {{$controllerName}} 
 {

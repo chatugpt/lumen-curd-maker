@@ -5,9 +5,11 @@
 lumen 框架 自动生成增删改查 api接口 和管理后台
 
 
-1，在bootstrap/app.php中加入一行
+1，在bootstrap/app.php中加入2行
 
 $app->register(Le2le\Maker\MakerServiceProvider::class);
+
+$app->withEloquent();
 
 2，访问/maker
 

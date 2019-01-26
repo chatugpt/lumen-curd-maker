@@ -5,7 +5,6 @@ namespace Le2le\Maker;
 use Illuminate\Support\Facades\DB;
 use ReflectionClass;
 use Illuminate\Http\Request;
-use function GuzzleHttp\json_decode;
 use Laravel\Lumen\Routing\Controller;
 
 class MakerController extends Controller
@@ -76,8 +75,25 @@ class MakerController extends Controller
                 if( $item->prikey == 'PRI' ) {
                     $primaryKey = $item->name;
                     break;
+                }  
+            }
+            
+            foreach($columns as & $col){
+                if( $col->name == 'id' &&  (empty($col->remark) || strtoupper($col->remark) == 'ID')){
+                    $col->remark = '序号';
                 }
                 
+                if( $col->name == 'created_at' &&  empty($col->remark)) {
+                    $col->remark = '创建时间';
+                }
+                
+                if( $col->name == 'updated_at' &&  empty($col->remark)) {
+                    $col->remark = '修改时间';
+                }
+                
+                if( $col->name == 'deleted_at' &&  empty($col->remark)) {
+                    $col->remark = '删除时间';
+                }
             }
             
             
@@ -171,6 +187,7 @@ class MakerController extends Controller
             if(!empty($validation))
             {
                 $columns = $this->getValidationColumns($columns);
+             
                 
                 $dir = app()->basePath('app'.DIRECTORY_SEPARATOR .'Validate');
                 if(!is_dir($dir))
@@ -212,15 +229,17 @@ class MakerController extends Controller
         $routeName = strtolower($controllerName);
         
         $str = '';
-        $str .= "\$app->get('$routeName', '{$controllerName}Controller@index');\r\n";
-        $str .= "\$app->get('$routeName/create', '{$controllerName}Controller@edit');\r\n";
-        $str .= "\$app->get('$routeName/{id}/edit', '{$controllerName}Controller@edit');\r\n";
-        $str .= "\$app->get('$routeName/{id}', '{$controllerName}Controller@show');\r\n";
-        $str .= "\$app->post('$routeName/{id}/delete', '{$controllerName}Controller@destroy');\r\n";
-        $str .= "\$app->post('$routeName/{id}', '{$controllerName}Controller@store');\r\n";
-        $str .= "\$app->post('$routeName', '{$controllerName}Controller@store');\r\n";
+        $str .= "\$router->get('$routeName', '{$controllerName}Controller@index');\r\n";
+        $str .= "\$router->get('$routeName/create', '{$controllerName}Controller@edit');\r\n";
+        $str .= "\$router->get('$routeName/{id}/edit', '{$controllerName}Controller@edit');\r\n";
+        $str .= "\$router->get('$routeName/{id}', '{$controllerName}Controller@show');\r\n";
+        $str .= "\$router->post('$routeName/{id}/delete', '{$controllerName}Controller@destroy');\r\n";
+        $str .= "\$router->post('$routeName/{id}', '{$controllerName}Controller@store');\r\n";
+        $str .= "\$router->post('$routeName', '{$controllerName}Controller@store');\r\n";
         
-        
+        $str .= "\r\n";
+        $str .= "\r\n";
+        /*
         $adminPath = config('config.adminPath');
         
         if(empty($adminPath))
@@ -240,6 +259,7 @@ class MakerController extends Controller
         $str .= "\$app->post('$adminPath$routeName/{id}/delete', '$adminNameSpace{$controllerName}Controller@destroy');\r\n";
         $str .= "\$app->post('$adminPath$routeName/{id}', '$adminNameSpace{$controllerName}Controller@store');\r\n";
         $str .= "\$app->post('$adminPath$routeName', '$adminNameSpace{$controllerName}Controller@store');\r\n";
+        */
         return $str;
     }
     
@@ -351,9 +371,63 @@ class MakerController extends Controller
                 $item->remark = str_replace($match[0] ,'' , $item->remark);
             }
             
+            $item->h5FormValidatRule =  $this->getColumnH5FormValidatRule($item);
         }
         
         return $tables;
+    }
+    
+    function getColumnH5FormValidatRule($column)
+    {
+        $rule = [
+            'tinyint\((\d+)\) unsigned' => 'pattern="\d+" min="0" max="255"',
+            'tinyint\((\d+)\)' => 'pattern="-?\d+"  min="-128" max="127"',
+            'int\((\d+)\) unsigned'=>'pattern="\d+" min="0" max="65535"',
+            'int\((\d+)\)' => 'pattern="-?\d+" min="-32768" max="32767"',
+            'datetime'=> 'pattern="\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}"',
+            'date'=> 'pattern="\d{4}-\d{1,2}-\d{1,2}"',
+        ];
+        
+        $validRule = '';
+        if(in_array($column->name, ['id', 'created_at', 'updated_at', 'deleted_at']))
+        {
+            return '';
+        }
+        
+        if(strtoupper($column->is_null) == 'NO' && empty($column->default))
+        {
+            $validRule = 'required ';
+        }
+        
+        $type  = $column->column_type;
+        foreach ($rule as $key => $value)
+        {
+            if(preg_match('/' . $key . '/is', $type, $matches))
+            {
+                $validRule .= $value;
+                break;
+            }
+        }
+        
+        
+        if(preg_match('/decimal\((\d+),(\d+)\)/is', $type, $matches))
+        {
+            $sign = '';
+            $max = str_repeat(9, $matches[1]) . '.' . str_repeat(9, $matches[2]);
+            if(strstr($type, 'unsigned') !== false)
+            {
+                $min = 0;
+            }
+            else
+            {
+                $sign = '-?';
+                $min = '-'.str_repeat(9, $matches[1]) . '.' . str_repeat(9, $matches[2]);
+            }
+            
+            $validRule  .= 'pattern="'.$sign.'[\d.]+" min='.$min.' max='.$max.'';
+        }
+        
+        return $validRule;
     }
     
     

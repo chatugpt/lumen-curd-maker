@@ -21,24 +21,25 @@
 		@if (!empty($column->json['table']))
         <div class="form-group">
 			<label class="">{{$column->remark ? $column->remark : $column->name}}</label>
-			<input type="text" class="form-control"  name="{{$column->name}}" value="{{$doubleQ}}$data->{{$column->name}}}}" >
-			<div class="invalid-feedback">请输入</div>
+			<input type="text" class="form-control"  name="{{$column->name}}" value="{{$doubleQ}}$data->{{$column->name}}}}" {!! $column->h5FormValidatRule !!}>
+			<div class="invalid-feedback">请输入正确{{$column->remark ? $column->remark : $column->name}}</div>
     	</div>
     	@else
         <div class="form-group">
 			<label class="">{{$column->remark ? $column->remark : $column->name}}</label>
 			<select class="form-control"  name="{{$column->name}}" value="{{$doubleQ}}$data->{{$column->name}}}}" >
 				@foreach($column->json as $value => $label)
-				<option value="{{$value}}" {{$at}}if ($data->{{$column->name}} == '{{$value}}') "selected=selected" {{$at}}endif >{{$label}}</option>
+				<option value="{{$value}}" {{$at}}if ($data->{{$column->name}} == '{{$value}}') selected="selected" {{$at}}endif >{{$label}}</option>
 				@endforeach
 			</select>
-			<div class="invalid-feedback">请选择</div>
+			<div class="invalid-feedback">请选择{{$column->remark ? $column->remark : $column->name}}</div>
     	</div>
     	@endif
    	@else
    	    <div class="form-group">
 			<label class="">{{$column->remark ? $column->remark : $column->name}}</label>
-			<input type="text" class="form-control"  name="{{$column->name}}" value="{{$doubleQ}}$data->{{$column->name}}}}" >
+			<input type="text" class="form-control"  name="{{$column->name}}" value="{{$doubleQ}}$data->{{$column->name}}}}" {!! $column->h5FormValidatRule !!}>
+			<div class="invalid-feedback">请输入正确{{$column->remark ? $column->remark : $column->name}}</div>
     	</div>
 	@endif
 @endforeach
@@ -59,5 +60,16 @@
 
 </form>
 </div>
+<script>
+function formCheck(dom){
+	
+	if(dom.checkValidity() === false)
+	{
+		dom.classList.add('was-validated');
+		return false;
+	}
+	return true;
+}
+</script>
 {{$at}}endsection
 ﻿

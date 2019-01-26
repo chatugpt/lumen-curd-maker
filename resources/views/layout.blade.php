@@ -1,3 +1,8 @@
+<?php $isAjax = app()->request->ajax();?>
+<?php if($isAjax){?>
+<h3>@yield('title', '后台管理系统')</h3>
+@yield('body')
+<?php return; }?>
 <!DOCTYPE html>
 <html lang="zh-CN">
   <head>
