@@ -10,7 +10,7 @@
 		@if (!empty($column->json['table']))
         <div class="form-group">
 			<label class="">{{$column->remark ? $column->remark : $column->name}}</label>
-			<input type="text" class="form-control" readonly="true"  name="{{$column->name}}" value="{{$doubleQ}} getTableValue('{{$column->json['table']}}', $data->{{ $column->name }}, '{{$column->json['id']}}', '{{$column->json['name']}}')}}" >
+			<input type="text" class="form-control" readonly="true"  name="{{$column->name}}" value="{{$doubleQ}} getTableValue('{{$column->json['table']}}', $data->{{ $column->name }}, '{{isset($column->json['id'])?$column->json['id']:'id'}}', '{{isset($column->json['name'])?$column->json['name']:'name'}}')}}" >
     	</div>
     	@else
         <div class="form-group">

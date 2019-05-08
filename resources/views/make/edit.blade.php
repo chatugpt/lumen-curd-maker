@@ -21,7 +21,12 @@
 		@if (!empty($column->json['table']))
         <div class="form-group">
 			<label class="">{{$column->remark ? $column->remark : $column->name}}</label>
-			<input type="text" class="form-control"  name="{{$column->name}}" value="{{$doubleQ}}$data->{{$column->name}}}}" {!! $column->h5FormValidatRule !!}>
+			<select class="form-control"  name="{{$column->name}}" {!! $column->h5FormValidatRule !!}>
+	{{$doubleQ}} $tableData = getTableData('{{$column->json['table']}}','{{isset($column->json['id'])?$column->json['id']:'id'}}', '{{isset($column->json['name'])?$column->json['name']:'name'}}')}}
+				{{$at}}foreach($tableData as $id => $value)
+				<option value="{{$doubleQ}}$id}}" {{$at}}if ($data->{{$column->name}} == '{{$doubleQ}}$id}}') selected="selected" {{$at}}endif >{{$doubleQ}}$value}}</option>
+				{{$at}}endforeach
+			</select>
 			<div class="invalid-feedback">请输入正确{{$column->remark ? $column->remark : $column->name}}</div>
     	</div>
     	@else

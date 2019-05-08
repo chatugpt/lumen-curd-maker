@@ -47,7 +47,7 @@
     	<td>
     		@if (!empty($column->json))
         		@if (!empty($column->json['table']))
-					{{$doubleQ}} getTableValue('{{$column->json['table']}}', $record->{{ $column->name }}, '{{$column->json['id']}}', '{{$column->json['name']}}')}}
+					{{$doubleQ}} getTableValue('{{$column->json['table']}}', $record->{{ $column->name }}, '{{isset($column->json['id'])? $column->json['id'] : 'id'}}', '{{isset($column->json['name']) ? $column->json['name'] : 'name'}}')}}
             	@else
     				@foreach($column->json as $value => $label)
     				 {{$at}}if ($record->{{$column->name}} == '{{$value}}') {{$label}} {{$at}}endif
