@@ -1,6 +1,6 @@
 @extends('layout')
 
-@section('title', '管理后台')
+@section('title', 'admin')
 
 @section('body')
 

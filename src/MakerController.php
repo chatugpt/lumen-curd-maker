@@ -5,14 +5,15 @@ namespace Le2le\Maker;
 use Illuminate\Support\Facades\DB;
 use ReflectionClass;
 use Illuminate\Http\Request;
+use function GuzzleHttp\json_decode;
 use Laravel\Lumen\Routing\Controller;
 
 class MakerController extends Controller
 {
-    
+
     public function index(Request $request, $table = '')
     {
-        
+
         $getTables = $request->input('table', $table);
         $model = $request->input('model', 0);
         $controller = $request->input('controller', 0);
@@ -20,7 +21,7 @@ class MakerController extends Controller
         $view = $request->input('view', 0);
         $validation = $request->input('validation', 0);
         $overwrite = $request->input('overwrite', 0);
-        
+
         if(empty($getTables))
         {
             $dbName = app()->db->getDatabaseName();
@@ -34,7 +35,7 @@ class MakerController extends Controller
                 //echo $table;
             }
             echo '</select><br /><br />';
-            
+
             echo '<input name="model" type="checkbox" value="1" />model';
             echo '<input name="controller" type="checkbox" value="1" />controller';
             echo '<input name="admincontroller" type="checkbox" value="1" />admin controller';
@@ -44,59 +45,42 @@ class MakerController extends Controller
             echo '<button type="submit" name="submit" value="submit">submit</button></form>';
             return;
         }
-        
-        
+
+
         $routeName = '';
-        
+
         $adminPath = config('config.adminPath') ;
-        
+
         $adminPath = !empty($adminPath) ? $adminPath : 'admin';
         foreach ($getTables as $table)
         {
-            
+
             $columns = $this->getAllColForTable($table);
-            
+
             if(empty($columns))
             {
                 echo 'error talbe';
                 return;
             }
-            
+
             $t = explode('_', $table);
             $controllerName = '';
             foreach ($t as $v)
             {
                 $controllerName .= ucfirst($v);
             }
-            
-            
+
+
             $primaryKey = '';
             foreach($columns as $item){
                 if( $item->prikey == 'PRI' ) {
                     $primaryKey = $item->name;
                     break;
-                }  
+                }
+
             }
-            
-            foreach($columns as & $col){
-                if( $col->name == 'id' &&  (empty($col->remark) || strtoupper($col->remark) == 'ID')){
-                    $col->remark = '序号';
-                }
-                
-                if( $col->name == 'created_at' &&  empty($col->remark)) {
-                    $col->remark = '创建时间';
-                }
-                
-                if( $col->name == 'updated_at' &&  empty($col->remark)) {
-                    $col->remark = '修改时间';
-                }
-                
-                if( $col->name == 'deleted_at' &&  empty($col->remark)) {
-                    $col->remark = '删除时间';
-                }
-            }
-            
-            
+
+
             $tableData = [
                 'columns' => $columns,
                 'table' => $table,
@@ -108,37 +92,38 @@ class MakerController extends Controller
                 'doubleQ' => '{{',
                 'adminPath' => $adminPath,
             ];
-            
+
             if(!empty($controller))
             {
-                
+
                 $content = view('maker::make.apicontroller', $tableData)->render();
                 $file = app()->basePath('app'.DIRECTORY_SEPARATOR .'Http'.DIRECTORY_SEPARATOR.'Controllers'). DIRECTORY_SEPARATOR. $controllerName . 'Controller.php';
-                
+
                 if(!file_exists($file) || (file_exists($file) && $overwrite))
                 {
                     file_put_contents($file, $content);
                 }
             }
-            
+
             if(!empty($admincontroller))
             {
                 $content = view('maker::make.controller', $tableData)->render();
-                
-                $dir = app()->basePath('app'.DIRECTORY_SEPARATOR .'Http'.DIRECTORY_SEPARATOR.'Controllers'). DIRECTORY_SEPARATOR . 'admin'. DIRECTORY_SEPARATOR;
-                if(!is_dir($dir))
+
+                $fileDir = app()->basePath('app'.DIRECTORY_SEPARATOR .'Http'.DIRECTORY_SEPARATOR.'Controllers'). DIRECTORY_SEPARATOR . 'Admin';
+
+                if(!is_dir($fileDir))
                 {
-                    mkdir($dir);
+                    mkdir($fileDir);
                 }
-                
-                $file = app()->basePath('app'.DIRECTORY_SEPARATOR .'Http'.DIRECTORY_SEPARATOR.'Controllers'). DIRECTORY_SEPARATOR . 'admin'. DIRECTORY_SEPARATOR. $controllerName . 'Controller.php';
-                
+
+                $file = $fileDir . DIRECTORY_SEPARATOR. $controllerName . 'Controller.php';
+
                 if(!file_exists($file) || (file_exists($file) && $overwrite))
                 {
                     file_put_contents($file, $content);
                 }
             }
-            
+
             if(!empty($model))
             {
                 foreach($columns as $item){
@@ -146,23 +131,27 @@ class MakerController extends Controller
                     {
                         $fillable[] = '"' .$item->name.'"';
                     }
-                    
+
                 }
                 $tableData['fillable'] = implode(',', $fillable);
                 $content = view('maker::make.model', $tableData)->render();
-                $dir = app()->basePath('app'.DIRECTORY_SEPARATOR .'Models');
-                if(!is_dir($dir))
+
+                $fileDir = app()->basePath('app'.DIRECTORY_SEPARATOR .'Models');
+
+                if(!is_dir($fileDir))
                 {
-                    mkdir($dir);
+                    mkdir($fileDir);
                 }
-                $file = app()->basePath('app'.DIRECTORY_SEPARATOR .'Models'). DIRECTORY_SEPARATOR. $controllerName . '.php';
-                
+
+
+                $file = $fileDir . DIRECTORY_SEPARATOR. $controllerName . '.php';
+
                 if(!file_exists($file) || (file_exists($file) && $overwrite))
                 {
                     file_put_contents($file, $content);
                 }
             }
-            
+
             if(!empty($view))
             {
                 $views = ['index', 'show', 'edit'];
@@ -174,46 +163,48 @@ class MakerController extends Controller
                     {
                         mkdir($viewDir);
                     }
-                    
+
                     $file = $viewDir . DIRECTORY_SEPARATOR . $one . '.blade.php';
-                    
+
                     if(!file_exists($file) || (file_exists($file) && $overwrite))
                     {
                         file_put_contents($file, $content);
                     }
                 }
             }
-            
+
             if(!empty($validation))
             {
                 $columns = $this->getValidationColumns($columns);
-             
-                
-                $dir = app()->basePath('app'.DIRECTORY_SEPARATOR .'Validate');
-                if(!is_dir($dir))
-                {
-                    mkdir($dir);
-                }
-                
+
                 $content = view('maker::make.valid', ['controllerName' => $controllerName, 'columns' => $columns, 'phpTag' => '<?php' ])->render();
-                $file = app()->basePath('app'.DIRECTORY_SEPARATOR .'Validate'). DIRECTORY_SEPARATOR. $controllerName . '.php';
-                
+
+
+                $fileDir = app()->basePath('app'.DIRECTORY_SEPARATOR .'Validate');
+
+                $file = $fileDir. DIRECTORY_SEPARATOR. $controllerName . '.php';
+
+                if(!is_dir($fileDir))
+                {
+                    mkdir($fileDir);
+                }
+
                 if(!file_exists($file) || (file_exists($file) && $overwrite))
                 {
                     file_put_contents($file, $content);
                 }
             }
-            
+
             $this->makeIdeHelper();
-            
-            
+
+
             $routeName .= $this->getRoute($controllerName) . "\r\n";
         }
-        
-        echo '<textarea rows="10" cols="60">' . $routeName . '</textarea><br />';
-        echo 'success';
+
+        echo '<textarea rows="20" cols="100">' . $routeName . '</textarea><br />';
+        echo '把以上复制到routes/web.php中';
     }
-    
+
     public function getRoute($controllerName)
     {
         /**
@@ -225,9 +216,9 @@ class MakerController extends Controller
          PUT/PATCH	/photos/{photo}	update	photos.update
          DELETE	/photos/{photo}	destroy	photos.destroy
          */
-        
+
         $routeName = strtolower($controllerName);
-        
+
         $str = '';
         $str .= "\$router->get('$routeName', '{$controllerName}Controller@index');\r\n";
         $str .= "\$router->get('$routeName/create', '{$controllerName}Controller@edit');\r\n";
@@ -236,34 +227,29 @@ class MakerController extends Controller
         $str .= "\$router->post('$routeName/{id}/delete', '{$controllerName}Controller@destroy');\r\n";
         $str .= "\$router->post('$routeName/{id}', '{$controllerName}Controller@store');\r\n";
         $str .= "\$router->post('$routeName', '{$controllerName}Controller@store');\r\n";
-        
-        $str .= "\r\n";
-        $str .= "\r\n";
-        /*
+
+
         $adminPath = config('config.adminPath');
-        
+
         if(empty($adminPath))
         {
             $adminPath = 'admin';
         }
-        
-        $adminPath .= '\\';
 
-        
+
         $adminNameSpace = 'Admin';
-        
-        $str .= "\$app->get('$adminPath$routeName', '$adminNameSpace{$controllerName}Controller@index');\r\n";
-        $str .= "\$app->get('$adminPath$routeName/create', '$adminNameSpace{$controllerName}Controller@edit');\r\n";
-        $str .= "\$app->get('$adminPath$routeName/{id}/edit', '$adminNameSpace{$controllerName}Controller@edit');\r\n";
-        $str .= "\$app->get('$adminPath$routeName/{id}', '$adminNameSpace{$controllerName}Controller@show');\r\n";
-        $str .= "\$app->post('$adminPath$routeName/{id}/delete', '$adminNameSpace{$controllerName}Controller@destroy');\r\n";
-        $str .= "\$app->post('$adminPath$routeName/{id}', '$adminNameSpace{$controllerName}Controller@store');\r\n";
-        $str .= "\$app->post('$adminPath$routeName', '$adminNameSpace{$controllerName}Controller@store');\r\n";
-        */
-        return $str;
+
+        $strAdmin = "\$router->group(['namespace' => 'Admin', 'prefix'=> '$adminPath'], function() use (\$router){";
+        foreach (explode("\r\n", $str) as $line)
+        {
+            $strAdmin .= "\t" . $line ."\r\n";
+        }
+
+        $strAdmin .= '});';
+        return $str ."\r\n". $strAdmin;
     }
-    
-    
+
+
     public function makeIdeHelper()
     {
         $this->aliases = [
@@ -288,14 +274,14 @@ class MakerController extends Controller
             'Illuminate\Contracts\Validation\Factory' => 'validator',
             'Illuminate\Contracts\View\Factory' => 'view',
         ];
-        
+
         app()->validator;
         $binds = app()->getBindings();
-        
+
         $bindNames = array_keys($binds);
         $aliases = array_values($this->aliases);
         $bindNames = array_merge($bindNames, $aliases);
-        
+
         $bindNames = array_unique($bindNames);
         $uses = $vars = '';
         foreach ($bindNames AS $one)
@@ -304,42 +290,42 @@ class MakerController extends Controller
             {
                 continue;
             }
-            
+
             if($one == 'encrypter')
             {
                 continue;
             }
-            
+
             $c = app($one);
-            
+
             $class = new ReflectionClass($c); // 建立 Person这个类的反射类
-            
+
             $namespaceName = $class->getNamespaceName();
             $name = $class->getName();
-            
-            
-            
+
+
+
             $uses .= "use $name;\r\n";
-            
+
             $vars .= "\t/**\r\n"
                 ."\t* @var \\$name \r\n"
                 ."\t*/\r\n"
                     ."\tpublic \$$one;\r\n\r\n";
-                    
-                    
+
+
         }
-        
+
         $fileContent ='<?php'. "\r\n" . "namespace Laravel\Lumen;"
             ."\r\n" . "use Illuminate\Container\Container;"
                 ."\r\n".$uses."\r\n"
                     . "\r\n".'class Application extends Container{' . "\r\n".
                     $vars . "\r\n"
                         . "\r\n".'}';
-                        
+
                         file_put_contents(base_path() . '/ideHelper.php', $fileContent);
-                        
+
     }
-    
+
     /**
      ["name"]
      ["type"]
@@ -348,7 +334,7 @@ class MakerController extends Controller
      */
     private function getAllColForTable($table)
     {
-        
+
         $databaseName = app()->db->connection()->getDatabaseName();
         $sql = "SELECT COLUMN_NAME AS 'name',
                 DATA_TYPE AS 'type',
@@ -359,9 +345,9 @@ class MakerController extends Controller
                 IS_NULLABLE as 'is_null'
                 FROM information_schema.`COLUMNS`
                 WHERE TABLE_SCHEMA = '$databaseName' AND TABLE_NAME = '$table';";
-        
+
         $tables = app()->db->select($sql);
-        
+
         foreach ( $tables as $item ) {
             preg_match('/{.*}/' , $item->remark ,$match);
             $options = [];
@@ -370,68 +356,14 @@ class MakerController extends Controller
                 $item->json = $RemarkJson;
                 $item->remark = str_replace($match[0] ,'' , $item->remark);
             }
-            
-            $item->h5FormValidatRule =  $this->getColumnH5FormValidatRule($item);
+
         }
-        
+
         return $tables;
     }
-    
-    function getColumnH5FormValidatRule($column)
-    {
-        $rule = [
-            'tinyint\((\d+)\) unsigned' => 'pattern="\d+" min="0" max="255"',
-            'tinyint\((\d+)\)' => 'pattern="-?\d+"  min="-128" max="127"',
-            'int\((\d+)\) unsigned'=>'pattern="\d+" min="0" max="65535"',
-            'int\((\d+)\)' => 'pattern="-?\d+" min="-32768" max="32767"',
-            'datetime'=> 'pattern="\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}"',
-            'date'=> 'pattern="\d{4}-\d{1,2}-\d{1,2}"',
-        ];
-        
-        $validRule = '';
-        if(in_array($column->name, ['id', 'created_at', 'updated_at', 'deleted_at']))
-        {
-            return '';
-        }
-        
-        if(strtoupper($column->is_null) == 'NO' && empty($column->default))
-        {
-            $validRule = 'required ';
-        }
-        
-        $type  = $column->column_type;
-        foreach ($rule as $key => $value)
-        {
-            if(preg_match('/' . $key . '/is', $type, $matches))
-            {
-                $validRule .= $value;
-                break;
-            }
-        }
-        
-        
-        if(preg_match('/decimal\((\d+),(\d+)\)/is', $type, $matches))
-        {
-            $sign = '';
-            $max = str_repeat(9, $matches[1]) . '.' . str_repeat(9, $matches[2]);
-            if(strstr($type, 'unsigned') !== false)
-            {
-                $min = 0;
-            }
-            else
-            {
-                $sign = '-?';
-                $min = '-'.str_repeat(9, $matches[1]) . '.' . str_repeat(9, $matches[2]);
-            }
-            
-            $validRule  .= 'pattern="'.$sign.'[\d.]+" min='.$min.' max='.$max.'';
-        }
-        
-        return $validRule;
-    }
-    
-    
-    
+
+
+
     function getValidationColumns($columns)
     {
         /**
@@ -439,9 +371,9 @@ class MakerController extends Controller
          MEDIUMTEXT 16,777,215 bytes ~16Mb
          LONGTEXT 4,294,967,295 bytes ~4Gb
          */
-        
-        
-        
+
+
+
         $rule = [
             'tinyint\((\d+)\) unsigned' => 'integer|min:0|max:255',
             'tinyint\((\d+)\)' => 'integer|min:-128|max:127',
@@ -452,7 +384,7 @@ class MakerController extends Controller
             'varchar\((\d+)\)' => 'max:$1',
             'char\((\d+)\)' => 'max:$1'
         ];
-        
+
         $validArray = [];
         foreach ($columns as & $column)
         {
@@ -461,12 +393,12 @@ class MakerController extends Controller
             {
                 continue;
             }
-            
+
             if(strtoupper($column->is_null) == 'NO' && empty($column->default))
             {
                 $validRule[] = 'required';
             }
-            
+
             $type  = $column->column_type;
             foreach ($rule as $key => $value)
             {
@@ -476,8 +408,8 @@ class MakerController extends Controller
                     break;
                 }
             }
-            
-            
+
+
             if(preg_match('/decimal\((\d+),(\d+)\)/is', $type, $matches))
             {
                 $max = str_repeat(9, $matches[1]) . '.' . str_repeat(9, $matches[2]);
@@ -489,16 +421,16 @@ class MakerController extends Controller
                 {
                     $min = '-'.str_repeat(9, $matches[1]) . '.' . str_repeat(9, $matches[2]);
                 }
-                
+
                 $validRule[]  = 'numeric|min:'.$min.'|max:'.$max.'';
             }
-            
+
             $column->validRule = implode('|', $validRule);
-            
+
         }
-        
+
         return $columns;
-        
+
     }
-    
+
 }

@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace Le2le\Maker;
 
 
@@ -28,7 +28,7 @@ class MakerServiceProvider extends ServiceProvider
 
         $views = resource_path('views');
         $files = ['header', 'index', 'layout', 'pagination'];
-        
+
         foreach ($files as $file)
         {
             if(!file_exists($views . DIRECTORY_SEPARATOR . $file . '.blade.php'))
@@ -36,31 +36,19 @@ class MakerServiceProvider extends ServiceProvider
                 copy($viewPath .DIRECTORY_SEPARATOR . $file . '.blade.php', $views . DIRECTORY_SEPARATOR . $file . '.blade.php');
             }
         }
-        
+
         $viewPath = realpath(__DIR__ . '/../resources/views');
         $this->loadViewsFrom($viewPath, 'maker');
-        
+
 
         $config['namespace'] = __NAMESPACE__;
         //定义路由
-        $app = app();
-        //定义路由
-        if(property_exists($app, 'router'))
-        {
-            app()->router->group($config, function ($router) {
-                $router->get('maker', 'MakerController@index');
-                $router->post('maker', 'MakerController@index');
-            });
-        }
-        else
-        {
-            app()->group($config, function ($router) {
-                $router->get('maker', 'MakerController@index');
-                $router->post('maker', 'MakerController@index');
-            });
-        }
+        app()->router->group($config, function ($router) {
+            $router->get('maker', 'MakerController@index');
+            $router->post('maker', 'MakerController@index');
+        });
 
-        
+
     }
 
     /**

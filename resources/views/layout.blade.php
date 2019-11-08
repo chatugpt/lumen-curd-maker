@@ -1,8 +1,3 @@
-<?php $isAjax = app()->request->ajax();?>
-<?php if($isAjax){?>
-<h3>@yield('title', '后台管理系统')</h3>
-@yield('body')
-<?php return; }?>
 <!DOCTYPE html>
 <html lang="zh-CN">
   <head>
@@ -27,9 +22,9 @@
 	<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
 	<script src="https://cdn.staticfile.org/jquery/1.12.4/jquery.min.js"></script>
 	<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
-	<script src="https://cdn.staticfile.org/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+	<script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.3/js/bootstrap.min.js"></script>
 		<!-- 新 Bootstrap 核心 CSS 文件 -->
-	<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.2.1/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.1.3/css/bootstrap.min.css">
 	
 	<script src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js"></script>
 	<link rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css">
@@ -92,25 +87,19 @@
   </div>
 </footer>
  -->
-<!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="alertModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel"></h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="exampleModalLabel">提示</h4>
       </div>
-      <div class="modal-body">
-        
+      <div class="modal-body" id="alertModalMessage">
+       {message}
       </div>
-      <!--
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
       </div>
-      -->
     </div>
   </div>
 </div>
@@ -131,7 +120,7 @@ $(document).ajaxStart(function(){
 $(document).ready(function() { 
 	NProgress.start();
 }); 
-$(window).on('load', function() { 
+$(window).load(function() { 
 	NProgress.done();
 }); 
 $(function () {
@@ -156,17 +145,6 @@ $(function () {
 	}
 	  
 })
-
-function formCheck(dom){
-	
-	if(dom.checkValidity() === false)
-	{
-		dom.classList.add('was-validated');
-		return false;
-	}
-	return true;
-}
-
 
 function search_from(field, value)
 {
@@ -268,15 +246,6 @@ function hide_popover(dom)
 	$(dom).parents("[role=tooltip]").popover('hide')
 }
 
-function showModalByUrl(url){
-	$.get(url, function(data){
-		$('#exampleModal').find('.modal-body').html(data);
-		$('#exampleModalLabel').html($('#exampleModal').find('.modal-body h3').html());
-		$('#exampleModal').find('.modal-body h3').html('')
-		$('#exampleModal').modal('show')
-	})
-
-}
 
 function ajaxAddOptions(url, target) {
     target.empty();

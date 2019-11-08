@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\{{$controllerName}};
-use App\Validate\{{$controllerName}} as Validate;
 
 class {{$controllerName}}Controller extends Controller
 {
@@ -42,26 +41,6 @@ class {{$controllerName}}Controller extends Controller
     public function store(Request $request, $id = null)
     {
         $model = !empty($id) ? {{$controllerName}}::find($id) : new {{$controllerName}}();
-        
-        $validate = new Validate();
-        $validate = (array)$validate;
-        if(!empty($model->id))
-        {
-            foreach ($validate as $key => $value)
-            {
-                if(!$request->has($key))
-                {
-                    unset($validate[$key]);
-                }
-            }
-        }
-        
-        $validator = app()->validator->make($request->all(), $validate);
-        
-        if ($validator->fails()) {
-            return response()->json(['status' => 422, 'data' => $validator->errors()->getMessages()]);
-        }
-        
         $fillable = $model->getFillable();
         foreach ($fillable as $key) {
             if($request->has($key))
