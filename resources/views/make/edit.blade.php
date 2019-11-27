@@ -6,15 +6,11 @@
 
 <div class="container">
 
-{{$at}}if ($data->id)
-<form action="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$data->id}}" method="post">
-{{$at}}else
-<form action="/{{$adminPath}}/{{$routeName}}" method="post">
-{{$at}}endif
+<form action="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}} ($data->id) ? ('/'. $data->id):'' }}" method="post" onsubmit="return checkForm(this);">
 
 @foreach( $columns as $column )
     @if (in_array($column->name, ['created_at', 'updated_at', 'deleted_at', 'salt']))
-    	
+
 	@elseif($column->prikey == 'PRI')
 		<input type="hidden" name="{{$column->name}}" value="{{$doubleQ}}$data->{{$column->name}}}}">
 	@elseif(!empty($column->json))
@@ -51,11 +47,48 @@
             <button type="submit" class="btn btn-primary float-right">提交</button>
             {{$at}}endif
             </div>
-			
+
 
 		</div>
 
 </form>
 </div>
+<script>
+    function   checkForm(dom){
+        let data = $(dom).serialize();
+        $.post('/{{$adminPath}}/{{$routeName}}{{$doubleQ}} ($data->id) ? ('/'. $data->id):'' }}', data, (res)=>{
+            $(".invalid-feedback").remove();
+            $("input").removeClass('is-invalid');
+
+            if(typeof(res.status) !='undefined' && res.status == 0)
+            {
+                return history.go(-1)
+            }
+            else{
+                if(res.data )
+                {
+
+                    for(let i in res.data) {
+                        let field = i;
+                        let error = res.data[i];
+
+                        let input = $("input[name="+field+"]");
+                        input.addClass('is-invalid');
+                        let next = input.next('div');
+                        if(!next.length)
+                        {
+                            input.after('<div class="invalid-feedback">'+error.join('<br />')+'</div>')
+                        }
+                        else{
+                            next.html(error.join('<br />'))
+                        }
+                    }
+                }
+            }
+        })
+        console.info(data);
+        return false;
+    }
+</script>
 {{$at}}endsection
 ﻿

@@ -5,20 +5,20 @@
 {{$at}}section('body')
 
 <div class="container-fluid">
-    <a  href="/{{$adminPath}}/{{$routeName}}/create/" target="_blank" class="btn btn-primary float-right">添加</a>
+    <a  href="/{{$adminPath}}/{{$routeName}}/create/"  class="btn btn-primary float-right">添加</a>
     <form class="form-inline">
     	<input type="hidden" name="order_by" value="{{$doubleQ}}$orderBy}}">
       <div class="form-group">
     	<select class="form-control" name="search_field">
     @foreach ($columns as $column)
-    <option value="{{$column->name}}" {{$at}}if ($searchField == '{{$column->name}}') selected="selected" {{$at}}endif>{{$column->remark ? $column->remark : $column->name}}</option>  
+    <option value="{{$column->name}}" {{$at}}if ($searchField == '{{$column->name}}') selected="selected" {{$at}}endif>{{$column->remark ? $column->remark : $column->name}}</option>
     @endforeach
     	</select>
       </div>
     <div class="form-group mx-sm-3">
     	<input type="text" class="form-control" name="search"  value="{{$doubleQ}}$search}}">
     </div>
-    
+
     <div class="form-group">
     	<button type="submit" class="btn btn-primary">搜索</button>
     </div>
@@ -60,17 +60,19 @@
         @endif
     @endforeach
 	     	<td>
-				<a target="_blank" href="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$record->{{$primaryKey}} }}">查看</a>
+				<a href="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$record->{{$primaryKey}} }}">查看</a>
 				<a data-url="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$record->{{$primaryKey}} }}/delete"  data-pk="{{$primaryKey}}" data-value="{{$doubleQ}}$record->{{$primaryKey}}}}" onclick="delete_item(this)"  style="cursor: pointer">删除</a>
-				<a target="_blank" href="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$record->{{$primaryKey}} }}/edit">编辑</a>
+				<a  href="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$record->{{$primaryKey}} }}/edit">编辑</a>
 			</td>
-	     	</tr>	
+	     	</tr>
     {{$at}}endforeach
 	  </table>
 	</div>
 	<div class="float-right">
 		<nav aria-label="Page navigation example">
-			{{$doubleQ}} $records->links('pagination') }}
+			{{$doubleQ}} $records->appends([ 'search' => $search,
+            'search_field' => $searchField,
+            'order_by' => $orderBy])->links('pagination') }}
 		</nav>
 	</div>
 </div>

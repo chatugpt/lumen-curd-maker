@@ -21,14 +21,15 @@ class MakerController extends Controller
         $view = $request->input('view', 0);
         $validation = $request->input('validation', 0);
         $overwrite = $request->input('overwrite', 0);
+        $soft_delete = $request->input('soft_delete', 0);
 
         if(empty($getTables))
         {
             $dbName = app()->db->getDatabaseName();
             $tableName = 'Tables_in_' . $dbName;
             $tables = app()->db->select('SHOW TABLES');
-            echo '<style>body{zoom:2;align:center;}</style>';
-            echo '<form method="post" /><select multiple="multiple" name="table[]" size="'.count($tables).'" style="width:200px;">';
+            echo '<style>body{align:center;}</style>';
+            echo '<form method="post" /><select multiple="multiple" name="table[]" size="'.count($tables).'" style="width:100%;">';
             foreach ($tables AS $table)
             {
                 echo '<option value ="'. $table->$tableName .'">'. $table->$tableName .'</option>';
@@ -36,12 +37,12 @@ class MakerController extends Controller
             }
             echo '</select><br /><br />';
 
-            echo '<input name="model" type="checkbox" value="1" />model';
-            echo '<input name="controller" type="checkbox" value="1" />controller';
-            echo '<input name="admincontroller" type="checkbox" value="1" />admin controller';
-            echo '<input name="view" type="checkbox" value="1" />view<br /><br />';
-            echo '<input name="validation" type="checkbox" value="1" />验证器<br /><br />';
-            echo '<input name="overwrite" type="checkbox" value="1" />替换掉已存在的文件<br /><br />';
+            echo '<input name="model" type="checkbox" checked value="1" />model';
+            echo '<input name="controller" type="checkbox" checked value="1" />controller';
+            echo '<input name="admincontroller" type="checkbox" checked value="1" />admin controller';
+            echo '<input name="view" type="checkbox" value="1" checked />view<br /><br />';
+            echo '<input name="soft_delete" type="checkbox" value="1"  />soft delete<br /><br />';
+            echo '<input name="overwrite" type="checkbox" value="1"  />替换掉已存在的文件<br /><br />';
             echo '<button type="submit" name="submit" value="submit">submit</button></form>';
             return;
         }
@@ -49,9 +50,8 @@ class MakerController extends Controller
 
         $routeName = '';
 
-        $adminPath = config('config.adminPath') ;
+        $adminPath = env('adminPath', 'admin');
 
-        $adminPath = !empty($adminPath) ? $adminPath : 'admin';
         foreach ($getTables as $table)
         {
 
@@ -81,6 +81,7 @@ class MakerController extends Controller
             }
 
 
+
             $tableData = [
                 'columns' => $columns,
                 'table' => $table,
@@ -91,6 +92,7 @@ class MakerController extends Controller
                 'at' => '@',
                 'doubleQ' => '{{',
                 'adminPath' => $adminPath,
+                'soft_delete' => $soft_delete,
             ];
 
             if(!empty($controller))
@@ -126,14 +128,17 @@ class MakerController extends Controller
 
             if(!empty($model))
             {
+                $fillable = [];
                 foreach($columns as $item){
                     if(!in_array($item->name, ['id', 'created_at', 'updated_at', 'deleted_at']))
                     {
                         $fillable[] = '"' .$item->name.'"';
                     }
-
                 }
+
                 $tableData['fillable'] = implode(',', $fillable);
+                $tableData['rules'] =  $this->getValidationRules($columns);
+
                 $content = view('maker::make.model', $tableData)->render();
 
                 $fileDir = app()->basePath('app'.DIRECTORY_SEPARATOR .'Models');
@@ -173,35 +178,13 @@ class MakerController extends Controller
                 }
             }
 
-            if(!empty($validation))
-            {
-                $columns = $this->getValidationColumns($columns);
-
-                $content = view('maker::make.valid', ['controllerName' => $controllerName, 'columns' => $columns, 'phpTag' => '<?php' ])->render();
-
-
-                $fileDir = app()->basePath('app'.DIRECTORY_SEPARATOR .'Validate');
-
-                $file = $fileDir. DIRECTORY_SEPARATOR. $controllerName . '.php';
-
-                if(!is_dir($fileDir))
-                {
-                    mkdir($fileDir);
-                }
-
-                if(!file_exists($file) || (file_exists($file) && $overwrite))
-                {
-                    file_put_contents($file, $content);
-                }
-            }
-
             $this->makeIdeHelper();
 
 
             $routeName .= $this->getRoute($controllerName) . "\r\n";
         }
 
-        echo '<textarea rows="20" cols="100">' . $routeName . '</textarea><br />';
+        echo '<textarea  width="100%"  style=" width: 100%;" rows="40">' . $routeName . '</textarea><br />';
         echo '把以上复制到routes/web.php中';
     }
 
@@ -239,7 +222,7 @@ class MakerController extends Controller
 
         $adminNameSpace = 'Admin';
 
-        $strAdmin = "\$router->group(['namespace' => 'Admin', 'prefix'=> '$adminPath'], function() use (\$router){";
+        $strAdmin = "\$router->group(['namespace' => 'Admin', 'prefix'=> '$adminPath'], function() use (\$router){\r\n";
         foreach (explode("\r\n", $str) as $line)
         {
             $strAdmin .= "\t" . $line ."\r\n";
@@ -352,7 +335,7 @@ class MakerController extends Controller
             preg_match('/{.*}/' , $item->remark ,$match);
             $options = [];
             if(isset($match) && isset($match[0])) {
-                $RemarkJson =  json_decode($match[0] ,1);
+                $RemarkJson =  \json_decode($match[0] ,1);
                 $item->json = $RemarkJson;
                 $item->remark = str_replace($match[0] ,'' , $item->remark);
             }
@@ -364,7 +347,7 @@ class MakerController extends Controller
 
 
 
-    function getValidationColumns($columns)
+    function getValidationRules($columns)
     {
         /**
          TEXT 65,535 bytes ~64kb
@@ -375,6 +358,8 @@ class MakerController extends Controller
 
 
         $rule = [
+            'smallint\((\d+)\) unsigned' => 'integer|min:0|max:65535',
+            'smallint\((\d+)\)' => 'integer|min:-32768|max:32767',
             'tinyint\((\d+)\) unsigned' => 'integer|min:0|max:255',
             'tinyint\((\d+)\)' => 'integer|min:-128|max:127',
             'int\((\d+)\) unsigned'=>'integer|min:0|max:65535',
@@ -425,11 +410,10 @@ class MakerController extends Controller
                 $validRule[]  = 'numeric|min:'.$min.'|max:'.$max.'';
             }
 
-            $column->validRule = implode('|', $validRule);
-
+            $validArray[$column->name] = implode('|', $validRule);
         }
 
-        return $columns;
+        return $validArray;
 
     }
 
