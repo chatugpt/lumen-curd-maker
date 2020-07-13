@@ -21,7 +21,6 @@ class MakerController extends Controller
         $view = $request->input('view', 0);
         $validation = $request->input('validation', 0);
         $overwrite = $request->input('overwrite', 0);
-        $soft_delete = $request->input('soft_delete', 0);
 
         if(empty($getTables))
         {
@@ -32,7 +31,11 @@ class MakerController extends Controller
             echo '<form method="post" /><select multiple="multiple" name="table[]" size="'.count($tables).'" style="width:100%;">';
             foreach ($tables AS $table)
             {
-                echo '<option value ="'. $table->$tableName .'">'. $table->$tableName .'</option>';
+				$tablePrefix =  env('DB_PREFIX', '');
+				$count = 1;
+				$tableOne = str_replace($tablePrefix, '', $table->$tableName, $count);
+
+                echo '<option value ="'. $table->$tableName .'">'. $tableOne .'</option>';
                 //echo $table;
             }
             echo '</select><br /><br />';
@@ -50,8 +53,10 @@ class MakerController extends Controller
 
         $routeName = '';
 
+        $adminPath = config('config.adminPath') ;
         $adminPath = env('adminPath', 'admin');
 
+        $adminPath = !empty($adminPath) ? $adminPath : 'admin';
         foreach ($getTables as $table)
         {
 
@@ -59,10 +64,13 @@ class MakerController extends Controller
 
             if(empty($columns))
             {
-                echo 'error talbe';
+                echo 'error table';
                 return;
             }
 
+			$tablePrefix =  env('DB_PREFIX', '');
+			$count = 1;
+			$table = str_replace($tablePrefix, '', $table, $count);
             $t = explode('_', $table);
             $controllerName = '';
             foreach ($t as $v)
@@ -92,7 +100,6 @@ class MakerController extends Controller
                 'at' => '@',
                 'doubleQ' => '{{',
                 'adminPath' => $adminPath,
-                'soft_delete' => $soft_delete,
             ];
 
             if(!empty($controller))
@@ -178,13 +185,34 @@ class MakerController extends Controller
                 }
             }
 
+            if(!empty($validation))
+            {
+                $columns = $this->getValidationColumns($columns);
+
+                $content = view('maker::make.valid', ['controllerName' => $controllerName, 'columns' => $columns, 'phpTag' => '<?php' ])->render();
+
+
+                $fileDir = app()->basePath('app'.DIRECTORY_SEPARATOR .'Validate');
+
+                $file = $fileDir. DIRECTORY_SEPARATOR. $controllerName . '.php';
+
+                if(!is_dir($fileDir))
+                {
+                    mkdir($fileDir);
+                }
+
+                if(!file_exists($file) || (file_exists($file) && $overwrite))
+                {
+                    file_put_contents($file, $content);
+                }
+            }
             $this->makeIdeHelper();
 
 
             $routeName .= $this->getRoute($controllerName) . "\r\n";
         }
 
-        echo '<textarea  width="100%"  style=" width: 100%;" rows="40">' . $routeName . '</textarea><br />';
+        echo '<textarea rows="20" cols="100">' . $routeName . '</textarea><br />';
         echo '把以上复制到routes/web.php中';
     }
 
