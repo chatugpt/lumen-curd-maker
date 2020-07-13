@@ -12,9 +12,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 */
 class {{$controllerName}} extends Model
 {
-@if ($soft_delete)    use SoftDeletes; @endif
-    protected $table = '{{$table}}';
-
+@if ($soft_delete)
+    use SoftDeletes;
+@endif
+    protected $table = '{{env('DB_PREFIX', '')}}{{$table}}';
+@if (!$timestamps)
+    protected $timestamps = false;
+@endif
+@if ($primaryKey != 'id')
+    public $primaryKey = '{{$primaryKey}}';
+@endif
     protected $fillable = [{!! $fillable !!}];
 
 @if($rules)

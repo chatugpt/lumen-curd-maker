@@ -21,14 +21,18 @@ class MakerController extends Controller
         $view = $request->input('view', 0);
         $validation = $request->input('validation', 0);
         $overwrite = $request->input('overwrite', 0);
+		$soft_delete = $request->input('soft_delete', 0);
+		$timestamps = $request->input('timestamps', 0);
 
         if(empty($getTables))
         {
             $dbName = app()->db->getDatabaseName();
             $tableName = 'Tables_in_' . $dbName;
             $tables = app()->db->select('SHOW TABLES');
-            echo '<style>body{align:center;}</style>';
-            echo '<form method="post" /><select multiple="multiple" name="table[]" size="'.count($tables).'" style="width:100%;">';
+
+            echo '<style>body{zoom:2;align:center;}</style>';
+            echo '<form method="post" /><select multiple="multiple" name="table[]" size="'.count($tables).'" style="width:200px;">';
+
             foreach ($tables AS $table)
             {
 				$tablePrefix =  env('DB_PREFIX', '');
@@ -40,12 +44,14 @@ class MakerController extends Controller
             }
             echo '</select><br /><br />';
 
-            echo '<input name="model" type="checkbox" checked value="1" />model';
-            echo '<input name="controller" type="checkbox" checked value="1" />controller';
-            echo '<input name="admincontroller" type="checkbox" checked value="1" />admin controller';
-            echo '<input name="view" type="checkbox" value="1" checked />view<br /><br />';
-            echo '<input name="soft_delete" type="checkbox" value="1"  />soft delete<br /><br />';
-            echo '<input name="overwrite" type="checkbox" value="1"  />替换掉已存在的文件<br /><br />';
+            echo '<input name="model" type="checkbox" value="1" />model';
+            echo '<input name="controller" type="checkbox" value="1" />controller';
+			echo '<input name="soft_delete" type="checkbox" value="1" />soft_delete';
+			echo '<input name="timestamps" type="checkbox" value="1" />timestamps';
+            echo '<input name="admincontroller" type="checkbox" value="1" />admin controller';
+            echo '<input name="view" type="checkbox" value="1" />view<br /><br />';
+            echo '<input name="validation" type="checkbox" value="1" />验证器<br /><br />';
+            echo '<input name="overwrite" type="checkbox" value="1" />替换掉已存在的文件<br /><br />';
             echo '<button type="submit" name="submit" value="submit">submit</button></form>';
             return;
         }
@@ -54,11 +60,11 @@ class MakerController extends Controller
         $routeName = '';
 
         $adminPath = config('config.adminPath') ;
-        $adminPath = env('adminPath', 'admin');
 
         $adminPath = !empty($adminPath) ? $adminPath : 'admin';
         foreach ($getTables as $table)
         {
+
 
             $columns = $this->getAllColForTable($table);
 
@@ -71,6 +77,7 @@ class MakerController extends Controller
 			$tablePrefix =  env('DB_PREFIX', '');
 			$count = 1;
 			$table = str_replace($tablePrefix, '', $table, $count);
+
             $t = explode('_', $table);
             $controllerName = '';
             foreach ($t as $v)
@@ -89,17 +96,18 @@ class MakerController extends Controller
             }
 
 
-
             $tableData = [
                 'columns' => $columns,
                 'table' => $table,
                 'controllerName' => $controllerName,
                 'routeName' => strtolower($controllerName),
                 'phpTag' => '<?php' ,
+				'timestamps' => $timestamps,
                 'primaryKey'=>$primaryKey,
                 'at' => '@',
                 'doubleQ' => '{{',
                 'adminPath' => $adminPath,
+				'soft_delete' => $soft_delete,
             ];
 
             if(!empty($controller))
@@ -135,17 +143,15 @@ class MakerController extends Controller
 
             if(!empty($model))
             {
-                $fillable = [];
                 foreach($columns as $item){
                     if(!in_array($item->name, ['id', 'created_at', 'updated_at', 'deleted_at']))
                     {
                         $fillable[] = '"' .$item->name.'"';
                     }
+
                 }
-
                 $tableData['fillable'] = implode(',', $fillable);
-                $tableData['rules'] =  $this->getValidationRules($columns);
-
+				$tableData['rules'] =  $this->getValidationRules($columns);
                 $content = view('maker::make.model', $tableData)->render();
 
                 $fileDir = app()->basePath('app'.DIRECTORY_SEPARATOR .'Models');
@@ -206,6 +212,7 @@ class MakerController extends Controller
                     file_put_contents($file, $content);
                 }
             }
+
             $this->makeIdeHelper();
 
 
@@ -250,7 +257,7 @@ class MakerController extends Controller
 
         $adminNameSpace = 'Admin';
 
-        $strAdmin = "\$router->group(['namespace' => 'Admin', 'prefix'=> '$adminPath'], function() use (\$router){\r\n";
+        $strAdmin = "\$router->group(['namespace' => 'Admin', 'prefix'=> '$adminPath'], function() use (\$router){";
         foreach (explode("\r\n", $str) as $line)
         {
             $strAdmin .= "\t" . $line ."\r\n";
@@ -363,7 +370,7 @@ class MakerController extends Controller
             preg_match('/{.*}/' , $item->remark ,$match);
             $options = [];
             if(isset($match) && isset($match[0])) {
-                $RemarkJson =  \json_decode($match[0] ,1);
+                $RemarkJson =  json_decode($match[0] ,1);
                 $item->json = $RemarkJson;
                 $item->remark = str_replace($match[0] ,'' , $item->remark);
             }
@@ -375,7 +382,7 @@ class MakerController extends Controller
 
 
 
-    function getValidationRules($columns)
+    function getValidationColumns($columns)
     {
         /**
          TEXT 65,535 bytes ~64kb
@@ -386,8 +393,6 @@ class MakerController extends Controller
 
 
         $rule = [
-            'smallint\((\d+)\) unsigned' => 'integer|min:0|max:65535',
-            'smallint\((\d+)\)' => 'integer|min:-32768|max:32767',
             'tinyint\((\d+)\) unsigned' => 'integer|min:0|max:255',
             'tinyint\((\d+)\)' => 'integer|min:-128|max:127',
             'int\((\d+)\) unsigned'=>'integer|min:0|max:65535',
@@ -438,11 +443,82 @@ class MakerController extends Controller
                 $validRule[]  = 'numeric|min:'.$min.'|max:'.$max.'';
             }
 
-            $validArray[$column->name] = implode('|', $validRule);
+            $column->validRule = implode('|', $validRule);
+
         }
 
-        return $validArray;
+        return $columns;
 
     }
+
+	function getValidationRules($columns)
+	{
+		/**
+		TEXT 65,535 bytes ~64kb
+		MEDIUMTEXT 16,777,215 bytes ~16Mb
+		LONGTEXT 4,294,967,295 bytes ~4Gb
+		 */
+
+
+
+		$rule = [
+			'smallint\((\d+)\) unsigned' => 'integer|min:0|max:65535',
+			'smallint\((\d+)\)' => 'integer|min:-32768|max:32767',
+			'tinyint\((\d+)\) unsigned' => 'integer|min:0|max:255',
+			'tinyint\((\d+)\)' => 'integer|min:-128|max:127',
+			'int\((\d+)\) unsigned'=>'integer|min:0|max:65535',
+			'int\((\d+)\)' => 'integer|min:-32768|max:32767',
+			'datetime'=> 'date',
+			'date'=> 'date|date_format:Y-m-d',
+			'varchar\((\d+)\)' => 'max:$1',
+			'char\((\d+)\)' => 'max:$1'
+		];
+
+		$validArray = [];
+		foreach ($columns as & $column)
+		{
+			$validRule = [];
+			if(in_array($column->name, ['id', 'created_at', 'updated_at', 'deleted_at']))
+			{
+				continue;
+			}
+
+			if(strtoupper($column->is_null) == 'NO' && empty($column->default))
+			{
+				$validRule[] = 'required';
+			}
+
+			$type  = $column->column_type;
+			foreach ($rule as $key => $value)
+			{
+				if(preg_match('/' . $key . '/is', $type, $matches))
+				{
+					$validRule[]  = preg_replace('/' . $key . '/is', $value, $type);
+					break;
+				}
+			}
+
+
+			if(preg_match('/decimal\((\d+),(\d+)\)/is', $type, $matches))
+			{
+				$max = str_repeat(9, $matches[1]) . '.' . str_repeat(9, $matches[2]);
+				if(strstr($type, 'unsigned') !== false)
+				{
+					$min = 0;
+				}
+				else
+				{
+					$min = '-'.str_repeat(9, $matches[1]) . '.' . str_repeat(9, $matches[2]);
+				}
+
+				$validRule[]  = 'numeric|min:'.$min.'|max:'.$max.'';
+			}
+
+			$validArray[$column->name] = implode('|', $validRule);
+		}
+
+		return $validArray;
+
+	}
 
 }
