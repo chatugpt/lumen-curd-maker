@@ -23,6 +23,8 @@ class MakerController extends Controller
         $overwrite = $request->input('overwrite', 0);
 		$soft_delete = $request->input('soft_delete', 0);
 		$timestamps = $request->input('timestamps', 0);
+		$model_namespace = $request->input('model_namespace', 0);
+
 
         if(empty($getTables))
         {
@@ -50,7 +52,7 @@ class MakerController extends Controller
 			echo '<input name="timestamps" type="checkbox" value="1" />timestamps';
             echo '<input name="admincontroller" type="checkbox" value="1" />admin controller';
             echo '<input name="view" type="checkbox" value="1" />view<br /><br />';
-            echo '<input name="validation" type="checkbox" value="1" />验证器<br /><br />';
+			echo 'model命名空间：<input name="model_namespace" type="input" value="App\Models" /><br /><br />';
             echo '<input name="overwrite" type="checkbox" value="1" />替换掉已存在的文件<br /><br />';
             echo '<button type="submit" name="submit" value="submit">submit</button></form>';
             return;
@@ -108,6 +110,7 @@ class MakerController extends Controller
                 'doubleQ' => '{{',
                 'adminPath' => $adminPath,
 				'soft_delete' => $soft_delete,
+				'model_namespace' => $model_namespace,
             ];
 
             if(!empty($controller))
@@ -191,27 +194,6 @@ class MakerController extends Controller
                 }
             }
 
-            if(!empty($validation))
-            {
-                $columns = $this->getValidationColumns($columns);
-
-                $content = view('maker::make.valid', ['controllerName' => $controllerName, 'columns' => $columns, 'phpTag' => '<?php' ])->render();
-
-
-                $fileDir = app()->basePath('app'.DIRECTORY_SEPARATOR .'Validate');
-
-                $file = $fileDir. DIRECTORY_SEPARATOR. $controllerName . '.php';
-
-                if(!is_dir($fileDir))
-                {
-                    mkdir($fileDir);
-                }
-
-                if(!file_exists($file) || (file_exists($file) && $overwrite))
-                {
-                    file_put_contents($file, $content);
-                }
-            }
 
             $this->makeIdeHelper();
 
@@ -412,9 +394,9 @@ class MakerController extends Controller
                 continue;
             }
 
-            if(strtoupper($column->is_null) == 'NO' && empty($column->default))
+            if(strtoupper($column->is_null) == 'NO' && empty($column->default)  && $column->prikey != 'PRI')
             {
-                $validRule[] = 'required';
+                $validRule[] = 'present';
             }
 
             $type  = $column->column_type;
@@ -485,7 +467,7 @@ class MakerController extends Controller
 
 			if(strtoupper($column->is_null) == 'NO' && empty($column->default))
 			{
-				$validRule[] = 'required';
+				$validRule[] = 'present';
 			}
 
 			$type  = $column->column_type;

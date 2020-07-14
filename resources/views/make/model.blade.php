@@ -1,5 +1,5 @@
 {!! $phpTag !!}
-namespace App\Models;
+namespace {{$model_namespace}};
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,14 +15,14 @@ class {{$controllerName}} extends Model
 @if ($soft_delete)
     use SoftDeletes;
 @endif
-    protected $table = '{{env('DB_PREFIX', '')}}{{$table}}';
+    protected $table = '{{$table}}';
 @if (!$timestamps)
-    protected $timestamps = false;
+    public $timestamps = false;
 @endif
 @if ($primaryKey != 'id')
     public $primaryKey = '{{$primaryKey}}';
 @endif
-    protected $fillable = [{!! $fillable !!}];
+    public $fillable = [{!! $fillable !!}];
 
 @if($rules)
     public $rules = [
