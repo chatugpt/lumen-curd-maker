@@ -146,6 +146,7 @@ class MakerController extends Controller
 
             if(!empty($model))
             {
+				$fillable = [];
                 foreach($columns as $item){
                     if(!in_array($item->name, ['id', 'created_at', 'updated_at', 'deleted_at']))
                     {
@@ -465,7 +466,7 @@ class MakerController extends Controller
 				continue;
 			}
 
-			if(strtoupper($column->is_null) == 'NO' && empty($column->default))
+			if(strtoupper($column->is_null) == 'NO' && empty($column->default)  && $column->prikey != 'PRI')
 			{
 				$validRule[] = 'present';
 			}
