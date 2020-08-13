@@ -5,7 +5,6 @@ namespace Le2le\Maker;
 use Illuminate\Support\Facades\DB;
 use ReflectionClass;
 use Illuminate\Http\Request;
-use function GuzzleHttp\json_decode;
 use Laravel\Lumen\Routing\Controller;
 
 class MakerController extends Controller
