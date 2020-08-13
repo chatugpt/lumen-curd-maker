@@ -40,7 +40,7 @@ class {{$controllerName}}Controller extends Controller
 
         $records = $model->paginate(15);
 
-        return view('{{$routeName}}.index', [
+        return view('{{$table}}.index', [
             'records' => $records,
             'search' => $search,
             'searchField' => $searchField,
@@ -58,7 +58,7 @@ class {{$controllerName}}Controller extends Controller
         }
         $model = new {{$controllerName}}();
         $model = $model->find($id);
-        return view('{{$routeName}}.show', ['data' => $model]);
+        return view('{{$table}}.show', ['data' => $model]);
     }
 
     public function store(Request $request, $id = null)
@@ -93,7 +93,7 @@ class {{$controllerName}}Controller extends Controller
         $model = $model->find($id);
 		$model = !empty($model->id) ? $model : new {{$controllerName}}();
 
-        return view('{{$routeName}}.edit', ['data' => $model]);
+        return view('{{$table}}.edit', ['data' => $model]);
     }
 
 

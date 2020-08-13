@@ -182,8 +182,7 @@ class MakerController extends Controller
 				foreach ($views as $one)
 				{
 					$content = view('maker::make.'.$one, $tableData)->render();
-					$viewDir = app()->basePath('resources'.DIRECTORY_SEPARATOR.'views').DIRECTORY_SEPARATOR.str_replace('_', '',
-							$table);
+					$viewDir = app()->basePath('resources'.DIRECTORY_SEPARATOR.'views').DIRECTORY_SEPARATOR.$table;
 					if(!is_dir($viewDir))
 					{
 						mkdir($viewDir);
