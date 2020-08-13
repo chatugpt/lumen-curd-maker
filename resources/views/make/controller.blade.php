@@ -77,11 +77,11 @@ class {{$controllerName}}Controller extends Controller
         $validator = app()->validator->make($model->toArray(), $model->rules);
 
         if ($validator->fails()) {
-            return response()->json(['status' => 1, 'data' =>   $validator->getMessageBag()->getMessages()]);
+            return response()->json(['status' => 400, 'data' =>   $validator->getMessageBag()->getMessages()]);
         }
 
         $model->save();
-         return response()->json(['status' => 0, 'data' =>  $model]);
+         return response()->json(['status' => 200, 'data' =>  $model]);
 
     }
 
@@ -107,6 +107,6 @@ class {{$controllerName}}Controller extends Controller
         $model = new {{$controllerName}}();
         $find = $model->find($id);
         $find->delete();
-        return ['status' => 0];
+        return ['status' => 200];
     }
 }

@@ -60,7 +60,7 @@
             $(".invalid-feedback").remove();
             $("input").removeClass('is-invalid');
 
-            if(typeof(res.status) !='undefined' && res.status == 0)
+            if(typeof(res.status) !='undefined' && res.status == 200)
             {
                 return history.go(-1)
             }
@@ -91,4 +91,4 @@
     }
 </script>
 {{$at}}endsection
-﻿
+

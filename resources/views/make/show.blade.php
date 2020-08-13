@@ -33,4 +33,3 @@
 	<a  href="/{{$adminPath}}/{{$routeName}}" class="btn btn-outline-secondary">返回</a>
 	</div>
 {{$at}}endsection
-﻿

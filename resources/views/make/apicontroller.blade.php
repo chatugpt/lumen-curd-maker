@@ -30,18 +30,18 @@ class {{$controllerName}}Controller extends Controller
 
         $records = $model->simplePaginate(15);
 
-        return response()->json(['status' => 0, 'data' => $records]);
+        return response()->json(['status' => 200, 'data' => $records]);
     }
 
     public function show(Request $request, $id)
     {
         $id = intval($id);
         if (!$id) {
-           return response()->json(['status' => 1, 'data' => 'id error']);
+           return response()->json(['status' => 400, 'data' => 'id error']);
         }
         $model = new {{$controllerName}}();
         $model = $model->find($id);
-        return response()->json(['status' => 0, 'data' => $model]);
+        return response()->json(['status' => 200, 'data' => $model]);
     }
 
     public function store(Request $request, $id = null)
@@ -58,11 +58,11 @@ class {{$controllerName}}Controller extends Controller
         $validator = app()->validator->make($model->toArray(), $model->rules);
 
         if ($validator->fails()) {
-            return response()->json(['status' => 1, 'data' =>   $validator->getMessageBag()->getMessages()]);
+            return response()->json(['status' => 400, 'data' =>   $validator->getMessageBag()->getMessages()]);
         }
 
         $model->save();
-        return response()->json(['status' => 0, 'data' => $model]);
+        return response()->json(['status' => 200, 'data' => $model]);
 
     }
 
@@ -71,7 +71,7 @@ class {{$controllerName}}Controller extends Controller
     {
         $id = intval($id);
         if (!$id) {
-           return response()->json(['status' => 1, 'data' => 'id error']);
+           return response()->json(['status' => 400, 'data' => 'id error']);
         }
 
         $model = new {{$controllerName}}();
@@ -81,6 +81,6 @@ class {{$controllerName}}Controller extends Controller
         	$find->delete();
         }
 
-        return response()->json(['status' => 0, 'data' => []]);
+        return response()->json(['status' => 200, 'data' => []]);
     }
 }
