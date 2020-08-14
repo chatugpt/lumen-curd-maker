@@ -386,7 +386,7 @@ class MakerController extends Controller
 
 			if(strtoupper($column->is_null) == 'NO' && empty($column->default) && $column->prikey != 'PRI')
 			{
-				$validRule[] = 'present';
+				$validRule[] = 'required';
 			}
 
 			$type = $column->column_type;
@@ -456,7 +456,7 @@ class MakerController extends Controller
 
 			if(strtoupper($column->is_null) == 'NO' && empty($column->default) && $column->prikey != 'PRI')
 			{
-				$validRule[] = 'present';
+				$validRule[] = 'required';
 			}
 
 			$type = $column->column_type;
