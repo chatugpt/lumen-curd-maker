@@ -31,9 +31,15 @@
 	  	<caption>{{$table}}</caption>
 		<thead>
 	        <tr>
-    @foreach ($columns as $column)
+    @foreach ($columns as $index => $column)
     @if (!in_array($column->name, ['updated_at', 'deleted_at', 'salt', 'password']))
-    <th id="thead_{{$column->name}}" class="sort"><span class="{{$at}}if ( '{{$column->name}}' == $sort[0]) {{$doubleQ}}$sort[1]}} {{$at}}endif"></span>{{$column->remark ? $column->remark : $column->name}}</th>
+		@if ($index > 6)
+			<!--
+		@endif
+    <th id="thead_{{$column->name}}" class="sort"><span class="{{$at}}if ( '{{$column->name}}' == $sort[0]) {{$doubleQ}}$sort[1]}} {{$at}}endif"></span>{{$column->remark ? substr($column->remark, 0,32) : $column->name}}</th>
+		@if ($index > 6)
+			-->
+		@endif
     @endif
     @endforeach
 	        <th>操作</th>
@@ -42,8 +48,11 @@
 
     {{$at}}foreach ($records as $record)
 	     	<tr>
-    @foreach ($columns as $column)
+    @foreach ($columns as $index => $column)
     	@if (!in_array($column->name, ['updated_at', 'deleted_at', 'salt', 'password']))
+			@if ($index > 6)
+			<!--
+			@endif
     	<td>
     		@if (!empty($column->json))
         		@if (!empty($column->json['table']))
@@ -57,6 +66,9 @@
         	   {{$doubleQ}} $record->{{ $column->name }} }}
         	@endif
     	 </td>
+    	 		@if ($index > 6)
+				-->
+				@endif
         @endif
     @endforeach
 	     	<td>
