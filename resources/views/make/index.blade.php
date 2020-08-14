@@ -5,7 +5,7 @@
 {{$at}}section('body')
 
 <div class="container-fluid">
-    <a  href="/{{$adminPath}}/{{$routeName}}/create/"  class="btn btn-primary float-right">添加</a>
+    <a  href="/{{$adminPath}}/{{$table}}/create/"  class="btn btn-primary float-right">添加</a>
     <form class="form-inline">
     	<input type="hidden" name="order_by" value="{{$doubleQ}}$orderBy}}">
       <div class="form-group">
@@ -72,9 +72,9 @@
         @endif
     @endforeach
 	     	<td>
-				<a href="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$record->{{$primaryKey}} }}">查看</a>
-				<a data-url="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$record->{{$primaryKey}} }}/delete"  data-pk="{{$primaryKey}}" data-value="{{$doubleQ}}$record->{{$primaryKey}}}}" onclick="delete_item(this)"  style="cursor: pointer">删除</a>
-				<a  href="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$record->{{$primaryKey}} }}/edit">编辑</a>
+				<a href="/{{$adminPath}}/{{$table}}/{{$doubleQ}}$record->{{$primaryKey}} }}">查看</a>
+				<a data-url="/{{$adminPath}}/{{$table}}/{{$doubleQ}}$record->{{$primaryKey}} }}/delete"  data-pk="{{$primaryKey}}" data-value="{{$doubleQ}}$record->{{$primaryKey}}}}" onclick="delete_item(this)"  style="cursor: pointer">删除</a>
+				<a  href="/{{$adminPath}}/{{$table}}/{{$doubleQ}}$record->{{$primaryKey}} }}/edit">编辑</a>
 			</td>
 	     	</tr>
     {{$at}}endforeach
