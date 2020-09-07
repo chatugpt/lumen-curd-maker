@@ -97,18 +97,20 @@ class MakerController extends Controller
 			}
 
 
-			$tableData = ['columns'         => $columns,
-			              'table'           => $table,
-			              'controllerName'  => $controllerName,
-			              'routeName'       => strtolower($controllerName),
-			              'phpTag'          => '<?php',
-			              'timestamps'      => $timestamps,
-			              'primaryKey'      => $primaryKey,
-			              'at'              => '@',
-			              'doubleQ'         => '{{',
-			              'adminPath'       => $adminPath,
-			              'soft_delete'     => $soft_delete,
-			              'model_namespace' => $model_namespace,];
+			$tableData = [
+				'columns'         => $columns,
+				'table'           => $table,
+				'controllerName'  => $controllerName,
+				'routeName'       => strtolower($controllerName),
+				'phpTag'          => '<?php',
+				'timestamps'      => $timestamps,
+				'primaryKey'      => $primaryKey,
+				'at'              => '@',
+				'doubleQ'         => '{{',
+				'adminPath'       => $adminPath,
+				'soft_delete'     => $soft_delete,
+				'model_namespace' => $model_namespace,
+			];
 
 			if(!empty($controller))
 			{
@@ -145,10 +147,12 @@ class MakerController extends Controller
 				$fillable = [];
 				foreach ($columns as $item)
 				{
-					if(!in_array($item->name, ['id',
-					                           'created_at',
-					                           'updated_at',
-					                           'deleted_at'])
+					if(!in_array($item->name, [
+						'id',
+						'created_at',
+						'updated_at',
+						'deleted_at',
+					])
 					)
 					{
 						$fillable[] = '"'.$item->name.'"';
@@ -176,9 +180,11 @@ class MakerController extends Controller
 
 			if(!empty($view))
 			{
-				$views = ['index',
-				          'show',
-				          'edit'];
+				$views = [
+					'index',
+					'show',
+					'edit',
+				];
 				foreach ($views as $one)
 				{
 					$content = view('maker::make.'.$one, $tableData)->render();
@@ -256,26 +262,28 @@ class MakerController extends Controller
 
 	public function makeIdeHelper()
 	{
-		$this->aliases = ['Illuminate\Contracts\Foundation\Application'     => 'app',
-		                  'Illuminate\Contracts\Auth\Factory'               => 'auth',
-		                  'Illuminate\Contracts\Auth\Guard'                 => 'auth.driver',
-		                  'Illuminate\Contracts\Cache\Factory'              => 'cache',
-		                  'Illuminate\Contracts\Cache\Repository'           => 'cache.store',
-		                  'Illuminate\Contracts\Config\Repository'          => 'config',
-		                  'Illuminate\Container\Container'                  => 'app',
-		                  'Illuminate\Contracts\Container\Container'        => 'app',
-		                  'Illuminate\Database\ConnectionResolverInterface' => 'db',
-		                  'Illuminate\Database\DatabaseManager'             => 'db',
-		                  'Illuminate\Contracts\Encryption\Encrypter'       => 'encrypter',
-		                  'Illuminate\Contracts\Events\Dispatcher'          => 'events',
-		                  'Illuminate\Contracts\Hashing\Hasher'             => 'hash',
-		                  'Psr\Log\LoggerInterface'                         => 'log',
-		                  'Illuminate\Contracts\Queue\Factory'              => 'queue',
-		                  'Illuminate\Contracts\Queue\Queue'                => 'queue.connection',
-		                  'Illuminate\Http\Request'                         => 'request',
-		                  'Laravel\Lumen\Routing\UrlGenerator'              => 'url',
-		                  'Illuminate\Contracts\Validation\Factory'         => 'validator',
-		                  'Illuminate\Contracts\View\Factory'               => 'view',];
+		$this->aliases = [
+			'Illuminate\Contracts\Foundation\Application'     => 'app',
+			'Illuminate\Contracts\Auth\Factory'               => 'auth',
+			'Illuminate\Contracts\Auth\Guard'                 => 'auth.driver',
+			'Illuminate\Contracts\Cache\Factory'              => 'cache',
+			'Illuminate\Contracts\Cache\Repository'           => 'cache.store',
+			'Illuminate\Contracts\Config\Repository'          => 'config',
+			'Illuminate\Container\Container'                  => 'app',
+			'Illuminate\Contracts\Container\Container'        => 'app',
+			'Illuminate\Database\ConnectionResolverInterface' => 'db',
+			'Illuminate\Database\DatabaseManager'             => 'db',
+			'Illuminate\Contracts\Encryption\Encrypter'       => 'encrypter',
+			'Illuminate\Contracts\Events\Dispatcher'          => 'events',
+			'Illuminate\Contracts\Hashing\Hasher'             => 'hash',
+			'Psr\Log\LoggerInterface'                         => 'log',
+			'Illuminate\Contracts\Queue\Factory'              => 'queue',
+			'Illuminate\Contracts\Queue\Queue'                => 'queue.connection',
+			'Illuminate\Http\Request'                         => 'request',
+			'Laravel\Lumen\Routing\UrlGenerator'              => 'url',
+			'Illuminate\Contracts\Validation\Factory'         => 'validator',
+			'Illuminate\Contracts\View\Factory'               => 'view',
+		];
 
 		app()->validator;
 		$binds = app()->getBindings();
@@ -362,23 +370,27 @@ class MakerController extends Controller
 		 */
 
 
-		$rule = ['tinyint\((\d+)\) unsigned' => 'integer|min:0|max:255',
-		         'tinyint\((\d+)\)'          => 'integer|min:-128|max:127',
-		         'int\((\d+)\) unsigned'     => 'integer|min:0|max:65535',
-		         'int\((\d+)\)'              => 'integer|min:-32768|max:32767',
-		         'datetime'                  => 'date',
-		         'date'                      => 'date|date_format:Y-m-d',
-		         'varchar\((\d+)\)'          => 'max:$1',
-		         'char\((\d+)\)'             => 'max:$1'];
+		$rule = [
+			'tinyint\((\d+)\) unsigned' => 'integer|min:0|max:255',
+			'tinyint\((\d+)\)'          => 'integer|min:-128|max:127',
+			'int\((\d+)\) unsigned'     => 'integer|min:0|max:4294967295',
+			'int\((\d+)\)'              => 'integer|min:-2147483648|max:2147483647',
+			'datetime'                  => 'date',
+			'date'                      => 'date|date_format:Y-m-d',
+			'varchar\((\d+)\)'          => 'max:$1',
+			'char\((\d+)\)'             => 'max:$1',
+		];
 
 		$validArray = [];
 		foreach ($columns as & $column)
 		{
 			$validRule = [];
-			if(in_array($column->name, ['id',
-			                            'created_at',
-			                            'updated_at',
-			                            'deleted_at'])
+			if(in_array($column->name, [
+				'id',
+				'created_at',
+				'updated_at',
+				'deleted_at',
+			])
 			)
 			{
 				continue;
@@ -430,25 +442,29 @@ class MakerController extends Controller
 		 */
 
 
-		$rule = ['smallint\((\d+)\) unsigned' => 'integer|min:0|max:65535',
-		         'smallint\((\d+)\)'          => 'integer|min:-32768|max:32767',
-		         'tinyint\((\d+)\) unsigned'  => 'integer|min:0|max:255',
-		         'tinyint\((\d+)\)'           => 'integer|min:-128|max:127',
-		         'int\((\d+)\) unsigned'      => 'integer|min:0|max:65535',
-		         'int\((\d+)\)'               => 'integer|min:-32768|max:32767',
-		         'datetime'                   => 'date',
-		         'date'                       => 'date|date_format:Y-m-d',
-		         'varchar\((\d+)\)'           => 'max:$1',
-		         'char\((\d+)\)'              => 'max:$1'];
+		$rule = [
+			'smallint\((\d+)\) unsigned' => 'integer|min:0|max:65535',
+			'smallint\((\d+)\)'          => 'integer|min:-32768|max:32767',
+			'tinyint\((\d+)\) unsigned'  => 'integer|min:0|max:255',
+			'tinyint\((\d+)\)'           => 'integer|min:-128|max:127',
+			'int\((\d+)\) unsigned'      => 'integer|min:0|max:4294967295',
+			'int\((\d+)\)'               => 'integer|min:-2147483648|max:2147483647',
+			'datetime'                   => 'date',
+			'date'                       => 'date|date_format:Y-m-d',
+			'varchar\((\d+)\)'           => 'max:$1',
+			'char\((\d+)\)'              => 'max:$1',
+		];
 
 		$validArray = [];
 		foreach ($columns as & $column)
 		{
 			$validRule = [];
-			if(in_array($column->name, ['id',
-			                            'created_at',
-			                            'updated_at',
-			                            'deleted_at'])
+			if(in_array($column->name, [
+				'id',
+				'created_at',
+				'updated_at',
+				'deleted_at',
+			])
 			)
 			{
 				continue;
