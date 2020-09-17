@@ -6,7 +6,7 @@
 
 <div class="container">
 
-<form action="/{{$adminPath}}/{{$table}}/{{$doubleQ}} ($data->id) ? ('/'. $data->id):'' }}" method="post" onsubmit="return checkForm(this);">
+<form action="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}} ($data->id) ? ('/'. $data->id):'' }}" method="post" onsubmit="return checkForm(this);">
 
 @foreach( $columns as $column )
     @if (in_array($column->name, ['created_at', 'updated_at', 'deleted_at', 'salt']))
@@ -40,7 +40,7 @@
 		<div class="form-group">
 			<label class="submit"></label>
 			<div>
-    		<a href="/{{$adminPath}}/{{$table}}" class="btn btn-outline-secondary">返回</a>
+    		<a href="/{{$adminPath}}/{{$routeName}}" class="btn btn-outline-secondary">返回</a>
             {{$at}}if ($data->id)
             <button type="submit" class="btn btn-primary float-right">修改</button>
             {{$at}}else
@@ -56,11 +56,11 @@
 <script>
     function   checkForm(dom){
         let data = $(dom).serialize();
-        $.post('/{{$adminPath}}/{{$table}}{{$doubleQ}} ($data->id) ? ('/'. $data->id):'' }}', data, (res)=>{
+        $.post('/{{$adminPath}}/{{$routeName}}{{$doubleQ}} ($data->id) ? ('/'. $data->id):'' }}', data, (res)=>{
             $(".invalid-feedback").remove();
             $("input").removeClass('is-invalid');
 
-            if(typeof(res.status) !='undefined' && res.status == 200)
+            if(typeof(res.status) !='undefined' && res.status == 0)
             {
                 return history.go(-1)
             }
@@ -91,4 +91,4 @@
     }
 </script>
 {{$at}}endsection
-
+﻿

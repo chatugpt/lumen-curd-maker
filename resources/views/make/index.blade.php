@@ -5,7 +5,7 @@
 {{$at}}section('body')
 
 <div class="container-fluid">
-    <a  href="/{{$adminPath}}/{{$table}}/create/"  class="btn btn-primary float-right">添加</a>
+    <a  href="/{{$adminPath}}/{{$routeName}}/create/"  class="btn btn-primary float-right">添加</a>
     <form class="form-inline">
     	<input type="hidden" name="order_by" value="{{$doubleQ}}$orderBy}}">
       <div class="form-group">
@@ -31,15 +31,9 @@
 	  	<caption>{{$table}}</caption>
 		<thead>
 	        <tr>
-    @foreach ($columns as $index => $column)
+    @foreach ($columns as $column)
     @if (!in_array($column->name, ['updated_at', 'deleted_at', 'salt', 'password']))
-		@if ($index > 6)
-			<!--
-		@endif
-    <th id="thead_{{$column->name}}" class="sort"><span class="{{$at}}if ( '{{$column->name}}' == $sort[0]) {{$doubleQ}}$sort[1]}} {{$at}}endif"></span>{{$column->remark ? substr($column->remark, 0,32) : $column->name}}</th>
-		@if ($index > 6)
-			-->
-		@endif
+    <th id="thead_{{$column->name}}" class="sort"><span class="{{$at}}if ( '{{$column->name}}' == $sort[0]) {{$doubleQ}}$sort[1]}} {{$at}}endif"></span>{{$column->remark ? $column->remark : $column->name}}</th>
     @endif
     @endforeach
 	        <th>操作</th>
@@ -48,11 +42,8 @@
 
     {{$at}}foreach ($records as $record)
 	     	<tr>
-    @foreach ($columns as $index => $column)
+    @foreach ($columns as $column)
     	@if (!in_array($column->name, ['updated_at', 'deleted_at', 'salt', 'password']))
-			@if ($index > 6)
-			<!--
-			@endif
     	<td>
     		@if (!empty($column->json))
         		@if (!empty($column->json['table']))
@@ -66,15 +57,12 @@
         	   {{$doubleQ}} $record->{{ $column->name }} }}
         	@endif
     	 </td>
-    	 		@if ($index > 6)
-				-->
-				@endif
         @endif
     @endforeach
 	     	<td>
-				<a href="/{{$adminPath}}/{{$table}}/{{$doubleQ}}$record->{{$primaryKey}} }}">查看</a>
-				<a data-url="/{{$adminPath}}/{{$table}}/{{$doubleQ}}$record->{{$primaryKey}} }}/delete"  data-pk="{{$primaryKey}}" data-value="{{$doubleQ}}$record->{{$primaryKey}}}}" onclick="delete_item(this)"  style="cursor: pointer">删除</a>
-				<a  href="/{{$adminPath}}/{{$table}}/{{$doubleQ}}$record->{{$primaryKey}} }}/edit">编辑</a>
+				<a href="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$record->{{$primaryKey}} }}">查看</a>
+				<a data-url="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$record->{{$primaryKey}} }}/delete"  data-pk="{{$primaryKey}}" data-value="{{$doubleQ}}$record->{{$primaryKey}}}}" onclick="delete_item(this)"  style="cursor: pointer">删除</a>
+				<a  href="/{{$adminPath}}/{{$routeName}}/{{$doubleQ}}$record->{{$primaryKey}} }}/edit">编辑</a>
 			</td>
 	     	</tr>
     {{$at}}endforeach
@@ -90,3 +78,4 @@
 </div>
 
 {{$at}}endsection
+﻿

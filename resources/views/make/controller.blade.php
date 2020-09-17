@@ -40,7 +40,7 @@ class {{$controllerName}}Controller extends Controller
 
         $records = $model->paginate(15);
 
-        return view('{{$table}}.index', [
+        return view('{{$routeName}}.index', [
             'records' => $records,
             'search' => $search,
             'searchField' => $searchField,
@@ -58,7 +58,7 @@ class {{$controllerName}}Controller extends Controller
         }
         $model = new {{$controllerName}}();
         $model = $model->find($id);
-        return view('{{$table}}.show', ['data' => $model]);
+        return view('{{$routeName}}.show', ['data' => $model]);
     }
 
     public function store(Request $request, $id = null)
@@ -77,11 +77,11 @@ class {{$controllerName}}Controller extends Controller
         $validator = app()->validator->make($model->toArray(), $model->rules);
 
         if ($validator->fails()) {
-            return response()->json(['status' => 400, 'data' =>   $validator->getMessageBag()->getMessages()]);
+            return response()->json(['status' => 1, 'data' =>   $validator->getMessageBag()->getMessages()]);
         }
 
         $model->save();
-         return response()->json(['status' => 200, 'data' =>  $model]);
+         return response()->json(['status' => 0, 'data' =>  $model]);
 
     }
 
@@ -93,7 +93,7 @@ class {{$controllerName}}Controller extends Controller
         $model = $model->find($id);
 		$model = !empty($model->id) ? $model : new {{$controllerName}}();
 
-        return view('{{$table}}.edit', ['data' => $model]);
+        return view('{{$routeName}}.edit', ['data' => $model]);
     }
 
 
@@ -107,6 +107,6 @@ class {{$controllerName}}Controller extends Controller
         $model = new {{$controllerName}}();
         $find = $model->find($id);
         $find->delete();
-        return ['status' => 200];
+        return ['status' => 0];
     }
 }
