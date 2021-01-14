@@ -395,7 +395,7 @@ class MakerController extends Controller
                 continue;
             }
 
-            if(strtoupper($column->is_null) == 'NO' && empty($column->default)  && $column->prikey != 'PRI')
+            if(strtoupper($column->is_null) == 'NO' && $column->default === ''  && $column->prikey != 'PRI')
             {
                 $validRule[] = 'present';
             }
@@ -466,7 +466,7 @@ class MakerController extends Controller
 				continue;
 			}
 
-			if(strtoupper($column->is_null) == 'NO' && empty($column->default)  && $column->prikey != 'PRI')
+			if(strtoupper($column->is_null) == 'NO' && $column->default === ''  && $column->prikey != 'PRI')
 			{
 				$validRule[] = 'present';
 			}
