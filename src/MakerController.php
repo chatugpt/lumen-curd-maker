@@ -5,15 +5,23 @@ namespace Le2le\Maker;
 use Illuminate\Support\Facades\DB;
 use ReflectionClass;
 use Illuminate\Http\Request;
-use function GuzzleHttp\json_decode;
-use Laravel\Lumen\Routing\Controller;
+use Illuminate\Routing\Controller;
 
 class MakerController extends Controller
 {
+    private $framework = '';
+
+    public function __construct()
+    {
+        $framework = 'lumen';
+        if (app() instanceof \Illuminate\Foundation\Application) {
+            $framework = 'laravel';
+        }
+        $this->framework = $framework;
+    }
 
     public function index(Request $request, $table = '')
     {
-
         $getTables = $request->input('table', $table);
         $model = $request->input('model', 0);
         $controller = $request->input('controller', 0);
@@ -24,7 +32,6 @@ class MakerController extends Controller
 		$soft_delete = $request->input('soft_delete', 0);
 		$timestamps = $request->input('timestamps', 0);
 		$model_namespace = $request->input('model_namespace', 0);
-
 
         if(empty($getTables))
         {
@@ -59,7 +66,7 @@ class MakerController extends Controller
         }
 
 
-        $routeName = '';
+        $routeName = $routeInfo = '';
 
         $adminPath = config('config.adminPath') ;
 
@@ -79,7 +86,7 @@ class MakerController extends Controller
 			$tablePrefix =  env('DB_PREFIX', '');
 			$count = 1;
 			$table = str_replace($tablePrefix, '', $table, $count);
-
+            $routeName = $table;
             $t = explode('_', $table);
             $controllerName = '';
             foreach ($t as $v)
@@ -102,7 +109,7 @@ class MakerController extends Controller
                 'columns' => $columns,
                 'table' => $table,
                 'controllerName' => $controllerName,
-                'routeName' => strtolower($controllerName),
+                'routeName' => $routeName,
                 'phpTag' => '<?php' ,
 				'timestamps' => $timestamps,
                 'primaryKey'=>$primaryKey,
@@ -111,6 +118,7 @@ class MakerController extends Controller
                 'adminPath' => $adminPath,
 				'soft_delete' => $soft_delete,
 				'model_namespace' => $model_namespace,
+                'framework' => $this->framework
             ];
 
             if(!empty($controller))
@@ -172,6 +180,11 @@ class MakerController extends Controller
                 {
                     file_put_contents($file, $content);
                 }
+
+                if($model_namespace == 'form')
+                {
+                    file_put_contents('D:\xampp\htdocs\en.okeysc\system\form\\' .  $controllerName . '.php', $content);
+                }
             }
 
             if(!empty($view))
@@ -180,7 +193,7 @@ class MakerController extends Controller
                 foreach ($views AS $one)
                 {
                     $content = view('maker::make.' . $one, $tableData)->render();
-                    $viewDir = app()->basePath('resources'.DIRECTORY_SEPARATOR .'views') . DIRECTORY_SEPARATOR . str_replace('_', '', $table);
+                    $viewDir = app()->basePath('resources'.DIRECTORY_SEPARATOR .'views') . DIRECTORY_SEPARATOR . $table;
                     if(!is_dir($viewDir))
                     {
                         mkdir($viewDir);
@@ -199,14 +212,14 @@ class MakerController extends Controller
             $this->makeIdeHelper();
 
 
-            $routeName .= $this->getRoute($controllerName) . "\r\n";
+            $routeInfo .= $this->getRoute($controllerName, $table) . "\r\n";
         }
 
-        echo '<textarea rows="20" cols="100">' . $routeName . '</textarea><br />';
+        echo '<textarea rows="20" cols="100">' . $routeInfo . '</textarea><br />';
         echo '把以上复制到routes/web.php中';
     }
 
-    public function getRoute($controllerName)
+    public function getRoute($controllerName, $table)
     {
         /**
          GET	/photos	index	photos.index
@@ -218,16 +231,18 @@ class MakerController extends Controller
          DELETE	/photos/{photo}	destroy	photos.destroy
          */
 
-        $routeName = strtolower($controllerName);
+        $routeName = $table;
+
+        $prefix = $this->framework == 'lumen' ? '$router->':'Route::';
 
         $str = '';
-        $str .= "\$router->get('$routeName', '{$controllerName}Controller@index');\r\n";
-        $str .= "\$router->get('$routeName/create', '{$controllerName}Controller@edit');\r\n";
-        $str .= "\$router->get('$routeName/{id}/edit', '{$controllerName}Controller@edit');\r\n";
-        $str .= "\$router->get('$routeName/{id}', '{$controllerName}Controller@show');\r\n";
-        $str .= "\$router->post('$routeName/{id}/delete', '{$controllerName}Controller@destroy');\r\n";
-        $str .= "\$router->post('$routeName/{id}', '{$controllerName}Controller@store');\r\n";
-        $str .= "\$router->post('$routeName', '{$controllerName}Controller@store');\r\n";
+        $str .= "{$prefix}get('$routeName', '{$controllerName}Controller@index');\r\n";
+        $str .= "{$prefix}get('$routeName/create', '{$controllerName}Controller@edit');\r\n";
+        $str .= "{$prefix}get('$routeName/{id}/edit', '{$controllerName}Controller@edit');\r\n";
+        $str .= "{$prefix}get('$routeName/{id}', '{$controllerName}Controller@show');\r\n";
+        $str .= "{$prefix}post('$routeName/{id}/delete', '{$controllerName}Controller@destroy');\r\n";
+        $str .= "{$prefix}post('$routeName/{id}', '{$controllerName}Controller@store');\r\n";
+        $str .= "{$prefix}post('$routeName', '{$controllerName}Controller@store');\r\n";
 
 
         $adminPath = config('config.adminPath');
@@ -240,7 +255,7 @@ class MakerController extends Controller
 
         $adminNameSpace = 'Admin';
 
-        $strAdmin = "\$router->group(['namespace' => 'Admin', 'prefix'=> '$adminPath'], function() use (\$router){";
+        $strAdmin = "\$router->group(['namespace' => 'Admin', 'prefix'=> '$adminPath'], function() use (\$router){\n";
         foreach (explode("\r\n", $str) as $line)
         {
             $strAdmin .= "\t" . $line ."\r\n";
@@ -253,6 +268,7 @@ class MakerController extends Controller
 
     public function makeIdeHelper()
     {
+        return;
         $this->aliases = [
             'Illuminate\Contracts\Foundation\Application' => 'app',
             'Illuminate\Contracts\Auth\Factory' => 'auth',
@@ -353,7 +369,7 @@ class MakerController extends Controller
             preg_match('/{.*}/' , $item->remark ,$match);
             $options = [];
             if(isset($match) && isset($match[0])) {
-                $RemarkJson =  \json_decode($match[0] ,1);
+                $RemarkJson =  json_decode($match[0] ,1);
                 $item->json = $RemarkJson;
                 $item->remark = str_replace($match[0] ,'' , $item->remark);
             }
@@ -466,7 +482,7 @@ class MakerController extends Controller
 				continue;
 			}
 
-			if(strtoupper($column->is_null) == 'NO' &&  ($column->default === '' || $column->default === NULL )   && $column->prikey != 'PRI')
+			if(strtoupper($column->is_null) == 'NO' && ($column->default === '' || $column->default === NULL )  && $column->prikey != 'PRI')
 			{
 				$validRule[] = 'present';
 			}

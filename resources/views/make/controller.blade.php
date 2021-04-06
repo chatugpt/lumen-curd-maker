@@ -3,7 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
+@if ($framework == 'lumen')
 use Laravel\Lumen\Routing\Controller;
+@else
+use Illuminate\Routing\Controller;
+@endif
 use App\Models\{{$controllerName}};
 
 class {{$controllerName}}Controller extends Controller
